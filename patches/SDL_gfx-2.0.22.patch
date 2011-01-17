@@ -1,0 +1,21 @@
+diff -burN SDL_gfx-2.0.22.orig/config.sub SDL_gfx-2.0.22/config.sub
+--- SDL_gfx-2.0.22.orig/config.sub	2009-12-21 22:00:31.000000000 -0500
++++ SDL_gfx-2.0.22/config.sub	2011-01-16 20:45:10.685505000 -0500
+@@ -13,7 +13,7 @@
+ # This file is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+ # the Free Software Foundation; either version 2 of the License, or
+-# (at your option) any later version.
++# (at your option) any later version.pp
+ #
+ # This program is distributed in the hope that it will be useful,
+ # but WITHOUT ANY WARRANTY; without even the implied warranty of
+@@ -897,6 +897,8 @@
+ 		;;
+ 	ppc64)	basic_machine=powerpc64-unknown
+ 		;;
++	ppu)	basic_machine=powerpc64-unknown
++		;;
+ 	ppc64-*) basic_machine=powerpc64-`echo $basic_machine | sed 's/^[^-]*-//'`
+ 		;;
+ 	ppc64le | powerpc64little | ppc64-le | powerpc64-little)
