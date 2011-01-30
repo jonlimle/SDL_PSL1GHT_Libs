@@ -12,8 +12,6 @@ cat ../patches/SDL_image-1.2.10.patch | patch -p1 || { exit 1; }
 	--disable-shared \
 	LIBPNG_CFLAGS="`$PS3DEV/ppu/bin/libpng-config --cflags`" \
 	LIBPNG_LIBS="`$PS3DEV/ppu/bin/libpng-config --libs`" \
-	CFLAGS="-I$PS3DEV/ppu/include" \
-	LDFLAGS="-L$PS3DEV/ppu/lib" \
     	|| { exit 1; }
 
 make && make install || { exit 1; }
