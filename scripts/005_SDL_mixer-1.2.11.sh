@@ -6,13 +6,14 @@ cd SDL_mixer-1.2.11 || { exit 1; }
 
 cat ../patches/SDL_mixer-1.2.11.patch | patch -p1 || { exit 1; }
 
+LIBMIKMOD_CONFIG="$PSL1GHT/target/bin/libmikmod-config"
+export LIBMIKMOD_CONFIG
 ./configure --prefix="$PSL1GHT/target" --host=ppu \
 	--disable-sdltest \
 	--with-sdl-exec-prefix="$PS3DEV/host/ppu" \
 	--disable-shared \
 	--disable-music-cmd \
 	--disable-music-ogg-shared \
-	--disable-music-mod \
 	--disable-music-mp3 \
     	|| { exit 1; }
 
