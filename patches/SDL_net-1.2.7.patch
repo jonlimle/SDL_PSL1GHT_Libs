@@ -1,0 +1,24 @@
+diff -burN SDL_net-1.2.7.orig//config.sub SDL_net-1.2.7//config.sub
+--- SDL_net-1.2.7.orig//config.sub	2011-04-10 13:19:45.004033776 +0200
++++ SDL_net-1.2.7//config.sub	2007-07-02 04:04:03.000000000 +0200
+@@ -797,6 +797,8 @@
+ 		;;
+ 	ppc64)	basic_machine=powerpc64-unknown
+ 		;;
++	ppu)	basic_machine=powerpc64-unknown
++		;;
+ 	ppc64-*) basic_machine=powerpc64-`echo $basic_machine | sed 's/^[^-]*-//'`
+ 		;;
+ 	ppc64le | powerpc64little | ppc64-le | powerpc64-little)
+diff -burN SDL_net-1.2.7.orig//SDLnet.c  SDL_net-1.2.7//SDLnet.c 
+--- SDL_net-1.2.7.orig//SDLnet.c	2011-04-10 13:28:36.330842320 +0200
++++ SDL_net-1.2.7//SDLnet.c	2011-04-10 13:28:43.985863972 +0200
+@@ -24,7 +24,7 @@
+ 
+ #include <string.h>
+ 
+-#include "SDL_byteorder.h"
++#include "SDL_endian.h"
+ 
+ #include "SDLnetsys.h"
+ #include "SDL_net.h"
