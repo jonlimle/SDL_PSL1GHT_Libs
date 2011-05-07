@@ -7,7 +7,7 @@ cd libmikmod-3.1.11 || { exit 1; }
 cat ../patches/libmikmod-3.1.11.patch | patch -p1 || { exit 1; }
 
 CC=ppu-gcc LD=ppu-ld NM=ppu-nm RANLIB=ppu-ranlib STRIP=ppu-strip \
-    ./configure --prefix="$PSL1GHT/target" --host=ppu \
+    ./configure --prefix="$PS3DEV/portlibs/ppu" --host=ppu \
 	--disable-esd --disable-dl --disable-shared \
 	|| { exit 1; }
 

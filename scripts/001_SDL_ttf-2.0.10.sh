@@ -6,9 +6,9 @@ cd SDL_ttf-2.0.10 || { exit 1; }
 
 cat ../patches/SDL_ttf-2.0.10.patch | patch -p1 || { exit 1; }
 
-./configure --prefix="$PSL1GHT/target" --host=ppu \
-	--with-freetype-exec-prefix="$PS3DEV/host/ppu" \
-	--with-sdl-exec-prefix="$PS3DEV/host/ppu" \
+./configure --prefix="$PSL1GHT/ppu" --host=ppu \
+	--with-freetype-exec-prefix="$PS3DEV/portlibs/ppu" \
+	--with-sdl-exec-prefix="$PS3DEV/portlibs/ppu" \
 	--without-x \
 	--disable-sdltest \
     	|| { exit 1; }

@@ -6,7 +6,7 @@ cd tiff-3.9.4 || { exit 1; }
 
 cat ../patches/tiff-3.9.4.patch | patch -p1 || { exit 1; }
 
-./configure --prefix="$PSL1GHT/target" --host=ppu --disable-shared \
+./configure --prefix="$PS3DEV/portlibs/ppu" --host=ppu --disable-shared \
     	|| { exit 1; }
 
 make && make install || { exit 1; }

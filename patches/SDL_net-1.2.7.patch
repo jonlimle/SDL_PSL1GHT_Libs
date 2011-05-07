@@ -22,3 +22,18 @@ diff -burN SDL_net-1.2.7.orig//SDLnet.c  SDL_net-1.2.7//SDLnet.c
  
  #include "SDLnetsys.h"
  #include "SDL_net.h"
+diff -burN SDL_net-1.2.7.orig//SDLnetsys.h SDL_net-1.2.7//SDLnetsys.h
+--- SDL_net-1.2.7/SDLnetsys.h	2011-05-07 14:31:18.598828492 +0200
++++ SDL_net-1.2.7/SDLnetsys.h	2011-05-07 14:32:06.834712732 +0200
+@@ -58,7 +58,11 @@
+ #ifdef linux /* FIXME: what other platforms have this? */
+ #include <netinet/tcp.h>
+ #endif
++#ifdef __lv2ppu__
++#include <net/netdb.h>
++#else
+ #include <netdb.h>
++#endif
+ #include <sys/socket.h>
+ #endif /* WIN32 */
+ #endif /* Open Transport */
