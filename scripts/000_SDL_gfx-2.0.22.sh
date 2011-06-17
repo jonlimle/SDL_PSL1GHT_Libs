@@ -10,4 +10,5 @@ cd SDL_gfx-2.0.22 || { exit 1; }
 	--disable-sdltest \
     	|| { exit 1; }
 
-make && make install || { exit 1; }
+aclocal_kluge='am__aclocal_m4_deps='
+make $aclocal_kluge && make $aclocal_kluge install || { exit 1; }
