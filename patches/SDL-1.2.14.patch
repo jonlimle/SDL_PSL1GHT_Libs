@@ -1767,10 +1767,10 @@ index 0000000..a2f0b92
 +
 diff --git a/src/video/psl1ght/SDL_PSL1GHTvideo.c b/src/video/psl1ght/SDL_PSL1GHTvideo.c
 new file mode 100644
-index 0000000..55b4dcb
+index 0000000..c58baee
 --- /dev/null
 +++ b/src/video/psl1ght/SDL_PSL1GHTvideo.c
-@@ -0,0 +1,536 @@
+@@ -0,0 +1,496 @@
 +/*
 + * SDL PSL1GHT port for SDL 1.2.
 + * This file is derived from SDL's dummy driver and cebash's SDL 1.3 port.
@@ -1917,7 +1917,7 @@ index 0000000..55b4dcb
 +	//for( i=0; i< num; i++)
 +	//	printf("\tx=%d, y=%d, w=%d, h=%d\n", \
 +	//	         rects[i].x, rects[i].y,rects[i].w, rects[i].h);
-+//	PSL1GHT_FlipHWSurface(this, (SDL_Surface*) NULL);
++	PSL1GHT_FlipHWSurface(this, (SDL_Surface*) NULL);
 +	return num;
 +}
 +
@@ -1970,7 +1970,7 @@ index 0000000..55b4dcb
 +	device->UnlockHWSurface = PSL1GHT_UnlockHWSurface;
 +	device->FlipHWSurface = PSL1GHT_FlipHWSurface;
 +	device->FreeHWSurface = PSL1GHT_FreeHWSurface;
-+	device->UpdateRects = NULL;//PSL1GHT_UpdateRects;
++	device->UpdateRects = PSL1GHT_UpdateRects;
 +	device->SetCaption = NULL;
 +	device->SetIcon = NULL;
 +	device->IconifyWindow = NULL;
@@ -2009,51 +2009,27 @@ index 0000000..55b4dcb
 +	PSL1GHT_InitSysEvent(this);
 +	PSL1GHT_InitKeyboard(this);
 +
-+	
 +	host_addr = memalign (1024*1024, HOST_SIZE);
 +
-+// olde initScreen functione
-+  //videoState state;
-+
-+  /* Initilise Reality, which sets up the command buffer and shared IO memory */
-+  context = rsxInit (CB_SIZE, HOST_SIZE, host_addr);
-+  if (context == NULL)
-+    goto error;
-+
-+//  /* Get the current resolution */
-+//  /* Configure the buffer format to xRGB */
-+//  memset (&vconfig, 0, sizeof(videoConfiguration));
-+//  vconfig.resolution = VIDEO_RESOLUTION_1080;//state.displayMode.resolution;
-+//  vconfig.format = VIDEO_BUFFER_FORMAT_XRGB;
-+//  vconfig.pitch = /*res.width*/1920 * sizeof(u32);
-+//  vconfig.aspect = VIDEO_ASPECT_16_9;//state.displayMode.aspect;
-+//
-+//  waitRSXIdle(context);
-+//
-+//  if (videoConfigure (0, &vconfig, NULL, 0) != 0)
-+//    goto error;
-+//
-+//  gcmSetFlipMode (GCM_FLIP_VSYNC); // Wait for VSYNC to flip
-+//
-+//  depth_pitch = /*res.width*/ 1920 * sizeof(u32);
-+//  depth_buffer = (u32 *) rsxMemalign (64, (/*res.height*/ 1080 * depth_pitch)* 2);
-+//  rsxAddressToOffset (depth_buffer, &depth_offset);
-+//
-+//  gcmResetFlipStatus();
-+
-+
-+
++	/* Initilise Reality, which sets up the command buffer and shared IO memory */
++	context = rsxInit (CB_SIZE, HOST_SIZE, host_addr);
++	if (context == NULL)
++		goto error;
 +
 +	this->hidden->host_address = host_addr;
 +	this->hidden->gcmContext = context;
-+	/* Determine the screen depth (use default 8-bit depth) */
-+	/* we change this during the SDL_SetVideoMode implementation... */
-+	/////FIXME: here goes interrogating possible screen resos from RSX, 
-+	/////       and converting them as SDL modes (or whatever they are called)
++
++	// set the preferred format
 +	vformat->BitsPerPixel = 32;
 +	vformat->BytesPerPixel = 4;
++	//we use ARGB (8+8+8+8)
++	vformat->Amask = 0xff000000;
++	vformat->Rmask = 0xff0000;
++	vformat->Gmask = 0xff00;
++	vformat->Bmask = 0xff;
++	
++	this->info.wm_available = 0;
 +
-+	/* We're done! */
 +	return(0);
 +
 +	error:
@@ -2088,9 +2064,6 @@ index 0000000..55b4dcb
 +	int r;
 +	int num_modes=0;
 +	SDL_Rect **modes=NULL;
-+
-+	printf("PSL1GHT_ListModes(), request %d bits_per_pixel\n", format->BitsPerPixel);
-+	printf("\t width=%d, height=%d\n", this->hidden->w, this->hidden->h);
 +
 +	// todo: check rgb-ordering?
 +	if( format->BitsPerPixel != 32 ) return (SDL_Rect**) NULL;
@@ -2163,13 +2136,6 @@ index 0000000..55b4dcb
 +
 +	printf("PSL1GHT_SetVideoMode(this, xxx, width=%d, height=%d, bpp=%d, xxx)\n",
 +	                                          width,  height, bpp);
-+	printf("\tSDL_DOUBLEBUF = %s\n", flags&SDL_DOUBLEBUF?"true":"false");
-+
-+// double buffering assumed in fullscreen? 
-+//	if( !(flags&SDL_DOUBLEBUF) ){
-+//		SDL_SetError("Only double buffered HW surfaces supported presently");
-+//		return NULL;
-+//	}
 +
 +	videoConfiguration vconfig;
 +	memset (&vconfig, 0, sizeof(videoConfiguration));
@@ -2186,7 +2152,7 @@ index 0000000..55b4dcb
 +	}
 +  	gcmSetFlipMode (GCM_FLIP_VSYNC); // Wait for VSYNC to flip
 +
-+	// wtf are these??
++	// what are these??
 +	depth_pitch = width * sizeof(u32);
 +	depth_buffer = (u32 *) rsxMemalign (64, (height * depth_pitch)* 2);
 +	rsxAddressToOffset (depth_buffer, &depth_offset);
@@ -2196,7 +2162,6 @@ index 0000000..55b4dcb
 +
 +	for (i = 0; i < NUM_BUFF; i++)
 +	{
-+	//	makeBuffer (&(this->hidden->buffers[i]), width, height, i);
 +		rsxBuffer *buf = &(this->hidden->buffers[i]);
 +		buf->ptr = (uint32_t*) rsxMemalign (64, width*height*sizeof(u32));
 +		if( buf->ptr==NULL)
@@ -2225,18 +2190,13 @@ index 0000000..55b4dcb
 +	setRenderTargetStatic(&(this->hidden->sf), this->hidden->gcmContext, &(this->hidden->buffers[0]));
 +	setRenderTargetDynamic(&(this->hidden->sf), this->hidden->gcmContext, &(this->hidden->buffers[0]));
 +
-+	/* Set up the new mode framebuffer */
 +	current->flags = flags | SDL_FULLSCREEN | SDL_DOUBLEBUF;
 +	this->hidden->w = current->w = width;
 +	this->hidden->h = current->h = height;
 +	current->pitch = current->w * (bpp / 8);
 +
-+	/* We're done */
-+
 +	this->hidden->current = 0; //current buffer id
-+	//printf("PSL1GHT_SetVideoMode() - waiting for flip\n");
 +	waitFlip();
-+	//printf("PSL1GHT_SetVideoMode() done\n");
 +	isInited=1;
 +	return(current);
 +}
