@@ -15,6 +15,7 @@ export LIBMIKMOD_CONFIG
 	--disable-music-cmd \
 	--disable-music-ogg-shared \
 	--disable-music-mp3 \
+	--disable-music-flac \
     	|| { exit 1; }
 
 make && make install || { exit 1; }
