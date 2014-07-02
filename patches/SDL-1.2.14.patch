@@ -1,0 +1,2333 @@
+diff --git a/build-scripts/config.sub b/build-scripts/config.sub
+index 5ecc18b..c32437d 100755
+--- a/build-scripts/config.sub
++++ b/build-scripts/config.sub
+@@ -931,6 +931,8 @@ case $basic_machine in
+ 		;;
+ 	ppc64)	basic_machine=powerpc64-unknown
+ 		;;
++	powerpc64-ps3-elf) basic_machine=powerpc64-unknown
++		;;
+ 	ppc64-*) basic_machine=powerpc64-`echo $basic_machine | sed 's/^[^-]*-//'`
+ 		;;
+ 	ppc64le | powerpc64little | ppc64-le | powerpc64-little)
+diff --git a/configure b/configure
+index ea9b5da..4d20315 100755
+--- a/configure
++++ b/configure
+@@ -30591,6 +30591,31 @@ _ACEOF
+         # The RISC OS platform requires special setup.
+         EXTRA_LDFLAGS="$EXTRA_LDFLAGS -ljpeg -ltiff -lpng -lz"
+         ;;
++
++    #this is a kludge to add psl1ght to the SDL release tarball
++    *-ps3-elf)
++	echo psl1ght selected
++	read
++        ARCH=psl1ght
++        cat >>confdefs.h <<\_ACEOF
++#define SDL_VIDEO_DRIVER_PSL1GHT 1
++#define SDL_TIMER_PSL1GHT 1
++#define SDL_JOYSTICK_PSL1GHT 1
++#define SDL_AUDIO_DRIVER_PSL1GHT 1
++#define SDL_THREAD_PSL1GHT 1
++_ACEOF
++        have_video=yes
++        have_timers=yes
++	have_audio=yes
++	have_threads=yes
++	have_joystick=yes
++	SOURCES="$SOURCES $srcdir/src/video/psl1ght/*.c"
++	SOURCES="$SOURCES $srcdir/src/timer/psl1ght/*.c"
++	SOURCES="$SOURCES $srcdir/src/audio/psl1ght/*.c"
++	SOURCES="$SOURCES $srcdir/src/thread/psl1ght/*.c"
++	SOURCES="$SOURCES $srcdir/src/joystick/psl1ght/*.c"
++	EXTRA_LDFLAGS="-lrsx -lgcm_sys -lsysutil -lio"
++	;;
+     *)
+         { { $as_echo "$as_me:$LINENO: error:
+ *** Unsupported host:  Please add to configure.in
+diff --git a/include/SDL_config.h b/include/SDL_config.h
+index a508101..079db6a 100644
+--- a/include/SDL_config.h
++++ b/include/SDL_config.h
+@@ -1,3 +1,4 @@
++/* include/SDL_config.h.  Generated from SDL_config.h.in by configure.  */
+ /*
+     SDL - Simple DirectMedia Layer
+     Copyright (C) 1997-2009 Sam Lantinga
+@@ -23,23 +24,293 @@
+ #ifndef _SDL_config_h
+ #define _SDL_config_h
+ 
++/* This is a set of defines to configure the SDL features */
++
++/* General platform specific identifiers */
+ #include "SDL_platform.h"
+ 
+-/* Add any platform that doesn't build using the configure system */
+-#if defined(__DREAMCAST__)
+-#include "SDL_config_dreamcast.h"
+-#elif defined(__MACOS__)
+-#include "SDL_config_macos.h"
+-#elif defined(__MACOSX__)
+-#include "SDL_config_macosx.h"
+-#elif defined(__SYMBIAN32__)
+-#include "SDL_config_symbian.h"  /* must be before win32! */
+-#elif defined(__WIN32__)
+-#include "SDL_config_win32.h"
+-#elif defined(__OS2__)
+-#include "SDL_config_os2.h"
++/* Make sure that this isn't included by Visual C++ */
++#ifdef _MSC_VER
++#error You should copy include/SDL_config.h.default to include/SDL_config.h
++#endif
++
++/* C language features */
++/* #undef const */
++/* #undef inline */
++/* #undef volatile */
++
++/* C datatypes */
++/* #undef size_t */
++/* #undef int8_t */
++/* #undef uint8_t */
++/* #undef int16_t */
++/* #undef uint16_t */
++/* #undef int32_t */
++/* #undef uint32_t */
++/* #undef int64_t */
++/* #undef uint64_t */
++/* #undef uintptr_t */
++#define SDL_HAS_64BIT_TYPE 1
++
++/* Endianness */
++#define SDL_BYTEORDER 4321
++
++/* Comment this if you want to build without any C library requirements */
++#define HAVE_LIBC 1
++#if HAVE_LIBC
++
++/* Useful headers */
++#define HAVE_ALLOCA_H 1
++#define HAVE_SYS_TYPES_H 1
++#define HAVE_STDIO_H 1
++#define STDC_HEADERS 1
++#define HAVE_STDLIB_H 1
++#define HAVE_STDARG_H 1
++#define HAVE_MALLOC_H 1
++/* #undef HAVE_MEMORY_H */
++#define HAVE_STRING_H 1
++#define HAVE_STRINGS_H 1
++#define HAVE_INTTYPES_H 1
++#define HAVE_STDINT_H 1
++#define HAVE_CTYPE_H 1
++#define HAVE_MATH_H 1
++#define HAVE_ICONV_H 1
++#define HAVE_SIGNAL_H 1
++/* #undef HAVE_ALTIVEC_H */
++
++/* C library functions */
++#define HAVE_MALLOC 1
++#define HAVE_CALLOC 1
++#define HAVE_REALLOC 1
++#define HAVE_FREE 1
++#define HAVE_ALLOCA 1
++#ifndef _WIN32 /* Don't use C runtime versions of these on Windows */
++#define HAVE_GETENV 1
++#define HAVE_PUTENV 1
++#define HAVE_UNSETENV 1
++#endif
++#define HAVE_QSORT 1
++#define HAVE_ABS 1
++#define HAVE_BCOPY 1
++#define HAVE_MEMSET 1
++#define HAVE_MEMCPY 1
++#define HAVE_MEMMOVE 1
++/* #undef HAVE_MEMCMP */
++#define HAVE_STRLEN 1
++#define HAVE_STRLCPY 1
++#define HAVE_STRLCAT 1
++#define HAVE_STRDUP 1
++/* #undef HAVE__STRREV */
++/* #undef HAVE__STRUPR */
++/* #undef HAVE__STRLWR */
++/* #undef HAVE_INDEX */
++/* #undef HAVE_RINDEX */
++#define HAVE_STRCHR 1
++#define HAVE_STRRCHR 1
++#define HAVE_STRSTR 1
++/* #undef HAVE_ITOA */
++/* #undef HAVE__LTOA */
++/* #undef HAVE__UITOA */
++/* #undef HAVE__ULTOA */
++#define HAVE_STRTOL 1
++#define HAVE_STRTOUL 1
++/* #undef HAVE__I64TOA */
++/* #undef HAVE__UI64TOA */
++#define HAVE_STRTOLL 1
++#define HAVE_STRTOULL 1
++/* #undef HAVE_STRTOD */
++#define HAVE_ATOI 1
++#define HAVE_ATOF 1
++#define HAVE_STRCMP 1
++#define HAVE_STRNCMP 1
++/* #undef HAVE__STRICMP */
++#define HAVE_STRCASECMP 1
++/* #undef HAVE__STRNICMP */
++#define HAVE_STRNCASECMP 1
++#define HAVE_SSCANF 1
++#define HAVE_SNPRINTF 1
++#define HAVE_VSNPRINTF 1
++/* #undef HAVE_ICONV */
++/* #undef HAVE_SIGACTION */
++#define HAVE_SETJMP 1
++/* #undef HAVE_NANOSLEEP */
++/* #undef HAVE_CLOCK_GETTIME */
++/* #undef HAVE_GETPAGESIZE */
++/* #undef HAVE_MPROTECT */
++
+ #else
+-#include "SDL_config_minimal.h"
+-#endif /* platform config */
++/* We may need some replacement for stdarg.h here */
++#include <stdarg.h>
++#endif /* HAVE_LIBC */
++
++/* Allow disabling of core subsystems */
++/* #undef SDL_AUDIO_DISABLED */
++#define SDL_CDROM_DISABLED 1
++/* #undef SDL_CPUINFO_DISABLED */
++/* #undef SDL_EVENTS_DISABLED */
++/* #undef SDL_FILE_DISABLED */
++/* #undef SDL_JOYSTICK_DISABLED */
++#define SDL_LOADSO_DISABLED 1
++/* #undef SDL_THREADS_DISABLED */
++/* #undef SDL_TIMERS_DISABLED */
++/* #undef SDL_VIDEO_DISABLED */
++
++/* Enable various audio drivers */
++/* #undef SDL_AUDIO_DRIVER_ALSA */
++/* #undef SDL_AUDIO_DRIVER_ALSA_DYNAMIC */
++/* #undef SDL_AUDIO_DRIVER_ARTS */
++/* #undef SDL_AUDIO_DRIVER_ARTS_DYNAMIC */
++/* #undef SDL_AUDIO_DRIVER_BAUDIO */
++/* #undef SDL_AUDIO_DRIVER_BSD */
++/* #undef SDL_AUDIO_DRIVER_COREAUDIO */
++/* #undef SDL_AUDIO_DRIVER_DART */
++/* #undef SDL_AUDIO_DRIVER_DC */
++/* #undef SDL_AUDIO_DRIVER_DISK */
++/* #undef SDL_AUDIO_DRIVER_DUMMY */
++/* #undef SDL_AUDIO_DRIVER_DMEDIA */
++/* #undef SDL_AUDIO_DRIVER_DSOUND */
++/* #undef SDL_AUDIO_DRIVER_PULSE */
++/* #undef SDL_AUDIO_DRIVER_PULSE_DYNAMIC */
++/* #undef SDL_AUDIO_DRIVER_ESD */
++/* #undef SDL_AUDIO_DRIVER_ESD_DYNAMIC */
++/* #undef SDL_AUDIO_DRIVER_MINT */
++/* #undef SDL_AUDIO_DRIVER_MMEAUDIO */
++/* #undef SDL_AUDIO_DRIVER_NAS */
++/* #undef SDL_AUDIO_DRIVER_NAS_DYNAMIC */
++/* #undef SDL_AUDIO_DRIVER_OSS */
++/* #undef SDL_AUDIO_DRIVER_OSS_SOUNDCARD_H */
++/* #undef SDL_AUDIO_DRIVER_PAUD */
++#define SDL_AUDIO_DRIVER_PSL1GHT 1
++/* #undef SDL_AUDIO_DRIVER_QNXNTO */
++/* #undef SDL_AUDIO_DRIVER_SNDMGR */
++/* #undef SDL_AUDIO_DRIVER_SUNAUDIO */
++/* #undef SDL_AUDIO_DRIVER_WAVEOUT */
++
++/* Enable various cdrom drivers */
++/* #undef SDL_CDROM_AIX */
++/* #undef SDL_CDROM_BEOS */
++/* #undef SDL_CDROM_BSDI */
++/* #undef SDL_CDROM_DC */
++/* #undef SDL_CDROM_DUMMY */
++/* #undef SDL_CDROM_FREEBSD */
++/* #undef SDL_CDROM_LINUX */
++/* #undef SDL_CDROM_MACOS */
++/* #undef SDL_CDROM_MACOSX */
++/* #undef SDL_CDROM_MINT */
++/* #undef SDL_CDROM_OPENBSD */
++/* #undef SDL_CDROM_OS2 */
++/* #undef SDL_CDROM_OSF */
++/* #undef SDL_CDROM_QNX */
++/* #undef SDL_CDROM_WIN32 */
++
++/* Enable various input drivers */
++/* #undef SDL_INPUT_LINUXEV */
++/* #undef SDL_INPUT_TSLIB */
++/* #undef SDL_JOYSTICK_BEOS */
++/* #undef SDL_JOYSTICK_DC */
++/* #undef SDL_JOYSTICK_DUMMY */
++/* #undef SDL_JOYSTICK_IOKIT */
++/* #undef SDL_JOYSTICK_LINUX */
++/* #undef SDL_JOYSTICK_MACOS */
++/* #undef SDL_JOYSTICK_MINT */
++/* #undef SDL_JOYSTICK_OS2 */
++#define SDL_JOYSTICK_PSL1GHT 1
++/* #undef SDL_JOYSTICK_RISCOS */
++/* #undef SDL_JOYSTICK_WINMM */
++/* #undef SDL_JOYSTICK_USBHID */
++/* #undef SDL_JOYSTICK_USBHID_MACHINE_JOYSTICK_H */
++
++/* Enable various shared object loading systems */
++/* #undef SDL_LOADSO_BEOS */
++/* #undef SDL_LOADSO_DLCOMPAT */
++/* #undef SDL_LOADSO_DLOPEN */
++/* #undef SDL_LOADSO_DUMMY */
++/* #undef SDL_LOADSO_LDG */
++/* #undef SDL_LOADSO_MACOS */
++/* #undef SDL_LOADSO_OS2 */
++/* #undef SDL_LOADSO_WIN32 */
++
++/* Enable various threading systems */
++/* #undef SDL_THREAD_BEOS */
++/* #undef SDL_THREAD_DC */
++/* #undef SDL_THREAD_OS2 */
++/* #undef SDL_THREAD_PTH */
++/* #undef SDL_THREAD_PTHREAD */
++/* #undef SDL_THREAD_PTHREAD_RECURSIVE_MUTEX */
++/* #undef SDL_THREAD_PTHREAD_RECURSIVE_MUTEX_NP */
++#define SDL_THREAD_PSL1GHT 1
++/* #undef SDL_THREAD_SPROC */
++/* #undef SDL_THREAD_WIN32 */
++
++/* Enable various timer systems */
++/* #undef SDL_TIMER_BEOS */
++/* #undef SDL_TIMER_DC */
++/* #undef SDL_TIMER_DUMMY */
++/* #undef SDL_TIMER_MACOS */
++/* #undef SDL_TIMER_MINT */
++/* #undef SDL_TIMER_OS2 */
++#define SDL_TIMER_PSL1GHT 1
++/* #undef SDL_TIMER_RISCOS */
++/* #undef SDL_TIMER_UNIX */
++/* #undef SDL_TIMER_WIN32 */
++/* #undef SDL_TIMER_WINCE */
++
++/* Enable various video drivers */
++/* #undef SDL_VIDEO_DRIVER_AALIB */
++/* #undef SDL_VIDEO_DRIVER_BWINDOW */
++/* #undef SDL_VIDEO_DRIVER_CACA */
++/* #undef SDL_VIDEO_DRIVER_DC */
++/* #undef SDL_VIDEO_DRIVER_DDRAW */
++/* #undef SDL_VIDEO_DRIVER_DGA */
++/* #undef SDL_VIDEO_DRIVER_DIRECTFB */
++/* #undef SDL_VIDEO_DRIVER_DRAWSPROCKET */
++/* #undef SDL_VIDEO_DRIVER_DUMMY */
++/* #undef SDL_VIDEO_DRIVER_FBCON */
++/* #undef SDL_VIDEO_DRIVER_GAPI */
++/* #undef SDL_VIDEO_DRIVER_GEM */
++/* #undef SDL_VIDEO_DRIVER_GGI */
++/* #undef SDL_VIDEO_DRIVER_IPOD */
++/* #undef SDL_VIDEO_DRIVER_NANOX */
++/* #undef SDL_VIDEO_DRIVER_OS2FS */
++/* #undef SDL_VIDEO_DRIVER_PHOTON */
++/* #undef SDL_VIDEO_DRIVER_PICOGUI */
++/* #undef SDL_VIDEO_DRIVER_PS2GS */
++/* #undef SDL_VIDEO_DRIVER_PS3 */
++#define SDL_VIDEO_DRIVER_PSL1GHT 1
++/* #undef SDL_VIDEO_DRIVER_QTOPIA */
++/* #undef SDL_VIDEO_DRIVER_QUARTZ */
++/* #undef SDL_VIDEO_DRIVER_RISCOS */
++/* #undef SDL_VIDEO_DRIVER_SVGALIB */
++/* #undef SDL_VIDEO_DRIVER_TOOLBOX */
++/* #undef SDL_VIDEO_DRIVER_VGL */
++/* #undef SDL_VIDEO_DRIVER_WINDIB */
++/* #undef SDL_VIDEO_DRIVER_WSCONS */
++/* #undef SDL_VIDEO_DRIVER_X11 */
++/* #undef SDL_VIDEO_DRIVER_X11_DGAMOUSE */
++/* #undef SDL_VIDEO_DRIVER_X11_DYNAMIC */
++/* #undef SDL_VIDEO_DRIVER_X11_DYNAMIC_XEXT */
++/* #undef SDL_VIDEO_DRIVER_X11_DYNAMIC_XRANDR */
++/* #undef SDL_VIDEO_DRIVER_X11_DYNAMIC_XRENDER */
++/* #undef SDL_VIDEO_DRIVER_X11_VIDMODE */
++/* #undef SDL_VIDEO_DRIVER_X11_XINERAMA */
++/* #undef SDL_VIDEO_DRIVER_X11_XME */
++/* #undef SDL_VIDEO_DRIVER_X11_XRANDR */
++/* #undef SDL_VIDEO_DRIVER_X11_XV */
++/* #undef SDL_VIDEO_DRIVER_XBIOS */
++
++/* Enable OpenGL support */
++/* #undef SDL_VIDEO_OPENGL */
++/* #undef SDL_VIDEO_OPENGL_GLX */
++/* #undef SDL_VIDEO_OPENGL_WGL */
++/* #undef SDL_VIDEO_OPENGL_OSMESA */
++/* #undef SDL_VIDEO_OPENGL_OSMESA_DYNAMIC */
++
++/* Disable screensaver */
++#define SDL_VIDEO_DISABLE_SCREENSAVER 1
++
++/* Enable assembly routines */
++#define SDL_ASSEMBLY_ROUTINES 1
++/* #undef SDL_HERMES_BLITTERS */
++/* #undef SDL_ALTIVEC_BLITTERS */
+ 
+ #endif /* _SDL_config_h */
+diff --git a/include/SDL_config.h.in b/include/SDL_config.h.in
+index 58593ca..8a93139 100644
+--- a/include/SDL_config.h.in
++++ b/include/SDL_config.h.in
+@@ -179,6 +179,7 @@
+ #undef SDL_AUDIO_DRIVER_OSS
+ #undef SDL_AUDIO_DRIVER_OSS_SOUNDCARD_H
+ #undef SDL_AUDIO_DRIVER_PAUD
++#undef SDL_AUDIO_DRIVER_PSL1GHT
+ #undef SDL_AUDIO_DRIVER_QNXNTO
+ #undef SDL_AUDIO_DRIVER_SNDMGR
+ #undef SDL_AUDIO_DRIVER_SUNAUDIO
+@@ -212,6 +213,7 @@
+ #undef SDL_JOYSTICK_MACOS
+ #undef SDL_JOYSTICK_MINT
+ #undef SDL_JOYSTICK_OS2
++#undef SDL_JOYSTICK_PSL1GHT
+ #undef SDL_JOYSTICK_RISCOS
+ #undef SDL_JOYSTICK_WINMM
+ #undef SDL_JOYSTICK_USBHID
+@@ -235,6 +237,7 @@
+ #undef SDL_THREAD_PTHREAD
+ #undef SDL_THREAD_PTHREAD_RECURSIVE_MUTEX
+ #undef SDL_THREAD_PTHREAD_RECURSIVE_MUTEX_NP
++#undef SDL_THREAD_PSL1GHT
+ #undef SDL_THREAD_SPROC
+ #undef SDL_THREAD_WIN32
+ 
+@@ -245,6 +248,7 @@
+ #undef SDL_TIMER_MACOS
+ #undef SDL_TIMER_MINT
+ #undef SDL_TIMER_OS2
++#undef SDL_TIMER_PSL1GHT
+ #undef SDL_TIMER_RISCOS
+ #undef SDL_TIMER_UNIX
+ #undef SDL_TIMER_WIN32
+@@ -271,6 +275,7 @@
+ #undef SDL_VIDEO_DRIVER_PICOGUI
+ #undef SDL_VIDEO_DRIVER_PS2GS
+ #undef SDL_VIDEO_DRIVER_PS3
++#undef SDL_VIDEO_DRIVER_PSL1GHT
+ #undef SDL_VIDEO_DRIVER_QTOPIA
+ #undef SDL_VIDEO_DRIVER_QUARTZ
+ #undef SDL_VIDEO_DRIVER_RISCOS
+diff --git a/src/audio/SDL_audio.c b/src/audio/SDL_audio.c
+index bdeacdc..fd91cd5 100644
+--- a/src/audio/SDL_audio.c
++++ b/src/audio/SDL_audio.c
+@@ -113,6 +113,9 @@ static AudioBootStrap *bootstrap[] = {
+ #if SDL_AUDIO_DRIVER_EPOCAUDIO
+ 	&EPOCAudio_bootstrap,
+ #endif
++#if SDL_AUDIO_DRIVER_PSL1GHT
++	&PSL1GHTAudio_bootstrap,
++#endif
+ 	NULL
+ };
+ SDL_AudioDevice *current_audio = NULL;
+diff --git a/src/audio/SDL_sysaudio.h b/src/audio/SDL_sysaudio.h
+index 50cf179..3a31c4a 100644
+--- a/src/audio/SDL_sysaudio.h
++++ b/src/audio/SDL_sysaudio.h
+@@ -177,6 +177,9 @@ extern AudioBootStrap DART_bootstrap;
+ #if SDL_AUDIO_DRIVER_EPOCAUDIO
+ extern AudioBootStrap EPOCAudio_bootstrap; 
+ #endif
++#if SDL_AUDIO_DRIVER_PSL1GHT
++extern AudioBootStrap PSL1GHTAudio_bootstrap; 
++#endif
+ 
+ /* This is the current audio device */
+ extern SDL_AudioDevice *current_audio;
+diff --git a/src/audio/psl1ght/SDL_psl1ghtaudio.c b/src/audio/psl1ght/SDL_psl1ghtaudio.c
+new file mode 100644
+index 0000000..6a31a0e
+--- /dev/null
++++ b/src/audio/psl1ght/SDL_psl1ghtaudio.c
+@@ -0,0 +1,207 @@
++/*
++
++*/
++#include "SDL_config.h"
++
++#include "SDL_rwops.h"
++#include "SDL_timer.h"
++#include "SDL_audio.h"
++#include "../SDL_audiomem.h"
++#include "../SDL_audio_c.h"
++#include "../SDL_audiodev_c.h"
++#include "SDL_psl1ghtaudio.h"
++
++/* The tag name used by PSL1GHT audio */
++#define PSL1GHTAUD_DRIVER_NAME         "psl1ght"
++
++/* Audio driver functions */
++static int PSL1GHTAUD_OpenAudio(_THIS, SDL_AudioSpec *spec);
++static void PSL1GHTAUD_WaitAudio(_THIS);
++static void PSL1GHTAUD_PlayAudio(_THIS);
++static Uint8 *PSL1GHTAUD_GetAudioBuf(_THIS);
++static void PSL1GHTAUD_CloseAudio(_THIS);
++
++/* Audio driver bootstrap functions */
++static int PSL1GHTAUD_Available(void)
++{
++	// audio should always be available.
++	// but perhaps, just in case, there is a way to check this?
++	return 1;
++}
++
++static void PSL1GHTAUD_DeleteDevice(SDL_AudioDevice *device)
++{
++	SDL_free(device->hidden);
++	SDL_free(device);
++}
++
++//inspired by the dummy audio driver.
++static SDL_AudioDevice *PSL1GHTAUD_CreateDevice(int devindex)
++{
++	SDL_AudioDevice *this;
++
++	/* Initialize all variables that we clean on shutdown */
++	this = (SDL_AudioDevice *)SDL_malloc(sizeof(SDL_AudioDevice));
++	if ( this ) {
++		SDL_memset(this, 0, (sizeof *this));
++		this->hidden = (struct SDL_PrivateAudioData *)
++				SDL_malloc((sizeof *this->hidden));
++	}
++	if ( (this == NULL) || (this->hidden == NULL) ) {
++		SDL_OutOfMemory();
++		if ( this ) {
++			SDL_free(this);
++		}
++		return(0);
++	}
++	SDL_memset(this->hidden, 0, (sizeof *this->hidden));
++
++	/* Set the function pointers */
++	this->OpenAudio = PSL1GHTAUD_OpenAudio;
++	this->WaitAudio = PSL1GHTAUD_WaitAudio;
++	this->PlayAudio = PSL1GHTAUD_PlayAudio;
++	this->GetAudioBuf = PSL1GHTAUD_GetAudioBuf;
++	this->CloseAudio = PSL1GHTAUD_CloseAudio;
++
++	this->free = PSL1GHTAUD_DeleteDevice;
++
++	return this;
++}
++
++AudioBootStrap PSL1GHTAudio_bootstrap = {
++	PSL1GHTAUD_DRIVER_NAME, "SDL psl1ght audio driver",
++	PSL1GHTAUD_Available, PSL1GHTAUD_CreateDevice
++};
++
++/* Wait untill HW buffer N is finished.
++ * The HW starts playing buffer N+1
++ */
++static void PSL1GHTAUD_WaitAudio(_THIS)
++{
++
++        sys_event_t event;
++        int retval = sysEventQueueReceive(this->hidden->sysQ, &event, 1000*1000 );
++        if( retval )
++                printf("PSL1GHTAUD_WaitAudio() - EventQueueReceive timeout or error\n");
++   
++}
++
++/* Buffer N has finished playing - now play buffer N+1. (this is what SDL asks us to do)
++ * But buffer N+1 is already playing - fill buffer N!
++ */
++static void PSL1GHTAUD_PlayAudio(_THIS)
++{
++	int i;
++	//this is index of buffer N
++	int audioBlockIndex = this->hidden->audioBlockIndex;
++
++	/* convert the signed 16bit integer buffer to a floating point buffer
++	 * this should be vectorized with the PPC's SIMD unit, or perhaps a SPU?
++	 */
++	float* buf = (float*)(this->hidden->apConfig.audioDataStart + 
++	                      sizeof(float)*2* AUDIO_BLOCK_SAMPLES * audioBlockIndex);
++
++	// unroll for speed - consider doing the frequency conversion here too!
++	for( i=0; i<2*AUDIO_BLOCK_SAMPLES; i+=4){
++		buf[i] = (this->hidden->mixbuf)[i]/32768.0f;
++		buf[i+1] = (this->hidden->mixbuf)[i+1]/32768.0f;
++		buf[i+2] = (this->hidden->mixbuf)[i+2]/32768.0f;
++		buf[i+3] = (this->hidden->mixbuf)[i+3]/32768.0f;
++	}
++
++	audioBlockIndex++;
++	audioBlockIndex = audioBlockIndex%AUDIO_BLOCK_32; // TODO - use this->hidden->??
++	this->hidden->audioBlockIndex = audioBlockIndex;
++
++}
++
++static Uint8 *PSL1GHTAUD_GetAudioBuf(_THIS)
++{
++	return (Uint8*) this->hidden->mixbuf;
++}
++
++static void PSL1GHTAUD_CloseAudio(_THIS)
++{
++	//TODO - clean up after us
++}
++
++// spec is prefilled with the desired specs - fill it with what is available!
++static int PSL1GHTAUD_OpenAudio(_THIS, SDL_AudioSpec *spec)
++{
++#if 0
++printf("PSL1GHTAUD_OpenAudio() - start\n");
++	printf("SDL_AudioSpec given is:\n");
++	printf("\tfreq = %d\n", spec->freq);
++	printf("\tformat = %d\n", spec->format);
++	printf("\tchannels = %d\n", spec->channels);
++	printf("\tsilence = %d\n", spec->silence);
++	printf("\tsamples(input or output?) = %d\n", spec->samples);
++	printf("\tpadding(input or output?) = %d\n", spec->padding);
++	printf("\tsize(input or output?) = %d\n", spec->size);
++#endif
++	
++	//format from include/SDL_audio.h AUDIO_U8, etc...
++	// the audio format expected is float [-1, 1] - which SDL doesn't support
++	spec->format = AUDIO_S16MSB;
++	
++	spec->channels = 2;
++	spec->freq = 48000; //this seems to be hard-coded in the HW
++	spec->samples = AUDIO_BLOCK_SAMPLES;
++	spec->size = 2 *AUDIO_BLOCK_SAMPLES * 2; //2 channels á 2bytes/sample
++
++	/* Allocate mixing buffer */
++	this->hidden->mixlen = AUDIO_BLOCK_SAMPLES;
++	this->hidden->mixbuf = (Sint16 *) SDL_AllocAudioMem(spec->size);
++	if ( this->hidden->mixbuf == NULL ) {
++		return(-1);
++	}
++	SDL_memset(this->hidden->mixbuf, 0, spec->size);
++
++        audioPortParam params;
++        audioPortConfig config;
++        u32 portNum;
++
++        int ret=audioInit();
++
++        //set some parameters we want
++        //either 2 or 8 channel
++        params.numChannels = AUDIO_PORT_2CH;
++        //8 16 or 32 block buffer
++        params.numBlocks = AUDIO_BLOCK_32;
++        //extended attributes
++        params.attrib = AUDIO_PORT_INITLEVEL;
++        //sound level (1 is default)
++        params.level = 0.8; // does is cut for you too?
++
++	//open the port (still stopped)
++        ret=audioPortOpen(&params, &portNum);
++
++        //get the params for the buffers, etc
++        ret=audioGetPortConfig(portNum, &config);
++#if 0
++        printf("audioGetPortConfig: %d\n",ret);
++        printf("  readIndex: 0x%8X\n",*(int*)(config.readIndex));
++        printf("  status: %d\n",config.status);
++        printf("  channelCount: %ld\n",config.channelCount);
++        printf("  numBlocks: %ld\n",config.numBlocks);
++        printf("  portSize: %d\n",config.portSize);
++        printf("  audioDataStart: 0x%8X\n",config.audioDataStart);
++#endif
++	this->hidden->audioBlockIndex=0;
++
++	this->hidden->portNum = portNum;
++	this->hidden->apParam = params;
++	this->hidden->apConfig = config;
++
++	/* Set up a audio norify queue as instructed in <audio/audio.h> */
++        ret=audioCreateNotifyEventQueue( &(this->hidden->sysQ), 
++                                         &(this->hidden->key));
++        ret = audioSetNotifyEventQueue(this->hidden->key);
++        ret = sysEventQueueDrain(this->hidden->sysQ);
++
++	/* We're ready to rock and roll. :-) */
++        //start the loop
++        ret=audioPortStart(portNum);
++	return(0);
++}
++
+diff --git a/src/audio/psl1ght/SDL_psl1ghtaudio.h b/src/audio/psl1ght/SDL_psl1ghtaudio.h
+new file mode 100644
+index 0000000..a0add90
+--- /dev/null
++++ b/src/audio/psl1ght/SDL_psl1ghtaudio.h
+@@ -0,0 +1,25 @@
++/*
++*/
++#pragma once
++#include "SDL_config.h"
++#include "../SDL_sysaudio.h"
++#include <audio/audio.h>
++#include <ppu-lv2.h>
++
++
++/* Hidden "this" pointer for the video functions */
++#define _THIS	SDL_AudioDevice *this
++
++struct SDL_PrivateAudioData {
++	/* The file descriptor for the audio device */
++	Sint16 *mixbuf;
++	Uint32 mixlen;
++
++        audioPortParam apParam;
++        audioPortConfig apConfig;
++        Uint32 portNum;
++        sys_event_queue_t sysQ;
++        sys_ipc_key_t key;
++	int audioBlockIndex;
++};
++
+diff --git a/src/events/SDL_keyboard.c b/src/events/SDL_keyboard.c
+index 4767f2e..f95771c 100644
+--- a/src/events/SDL_keyboard.c
++++ b/src/events/SDL_keyboard.c
+@@ -407,6 +407,7 @@ int SDL_PrivateKeyboard(Uint8 state, SDL_keysym *keysym)
+ #if 0
+ printf("The '%s' key has been %s\n", SDL_GetKeyName(keysym->sym), 
+ 				state == SDL_PRESSED ? "pressed" : "released");
++fflush(stdout);
+ #endif
+ 	/* Set up the keysym */
+ 	modstate = (Uint16)SDL_ModState;
+@@ -532,6 +533,7 @@ printf("The '%s' key has been %s\n", SDL_GetKeyName(keysym->sym),
+ 			return(0);
+ 	}
+ 
++
+ 	if ( keysym->sym != SDLK_UNKNOWN ) {
+ 		/* Drop events that don't change state */
+ 		if ( SDL_KeyState[keysym->sym] == state ) {
+diff --git a/src/joystick/psl1ght/SDL_sysjoystick.c b/src/joystick/psl1ght/SDL_sysjoystick.c
+new file mode 100644
+index 0000000..7794714
+--- /dev/null
++++ b/src/joystick/psl1ght/SDL_sysjoystick.c
+@@ -0,0 +1,133 @@
++/*
++ * SDL Joystick driver for the PS3 pad.
++ */
++#include "SDL_config.h"
++
++#if defined SDL_JOYSTICK_PSL1GHT
++
++#include "SDL_joystick.h"
++#include "SDL_events.h"
++#include "../SDL_sysjoystick.h"
++#include "../SDL_joystick_c.h"
++
++#include <io/pad.h>
++struct joystick_hwdata
++{
++	padData old_state;
++};
++
++// find the joystics, return number of available joysticks 
++// this gets called automatically at startup
++int SDL_SYS_JoystickInit(void)
++{
++	int rv;
++	padInfo padinfo;
++
++	rv = ioPadInit(7); // allow 7(?!) pads
++	rv = ioPadGetInfo(&padinfo); // search for pads
++	//printf("\tioPadGetInfo() - rv=%d\n", rv); 
++	//printf("\tPadInfo:\n\tMax Pads: %u\n\tConnected Pads: %u\n\tInfo Field: %08x\n", padinfo.max, padinfo.connected, padinfo.info);
++		
++			
++	return padinfo.connected;
++}
++
++// get the name of the index'th pad
++const char* names[MAX_PADS] = {"pad 1","pad 2","pad 3","pad 4","pad 5","pad 6","pad 7"};
++const char *SDL_SYS_JoystickName(int index)
++{
++	return names[index];
++}
++
++/* open up joystic->index'th joystick.
++ * fill the joystick structure
++ */
++int SDL_SYS_JoystickOpen(SDL_Joystick *joystick)
++{
++	// for now - assume it is one of the default controllers that come with the PS3
++	joystick->naxes = 4;
++	joystick->nhats = 0;
++	joystick->nballs = 0;
++	joystick->nbuttons = 16;
++	joystick->hwdata = (struct joystick_hwdata*)SDL_malloc(sizeof(struct joystick_hwdata));
++	return(0);
++}
++
++/* these routines are modified from cebash's SDL-1.3 port to psl1ght. */
++#define CheckPSL1GHTAxis( btn, bnum) \
++	if( pd.btn && (pd.btn != joystick->hwdata->old_state.btn)) {\
++		SDL_PrivateJoystickAxis( joystick, (bnum), ((pd.btn-0x80)/16)); \
++	} \
++	joystick->hwdata->old_state.btn = pd.btn;
++
++#define CheckPSL1GHTButton( btn, bnum) \
++	if( pd.btn != joystick->hwdata->old_state.btn) {\
++		dbg_updated=1;\
++		SDL_PrivateJoystickButton( joystick, (bnum), pd.btn); \
++	} \
++	joystick->hwdata->old_state.btn = pd.btn;
++
++
++/* Function to update the state of a joystick - called as a device poll.
++ * This function shouldn't update the joystick structure directly,
++ * but instead should call SDL_PrivateJoystick*() to deliver events
++ * and update joystick device state.
++ */
++static int dbg_updated=0;
++static padData pd;
++void
++SDL_SYS_JoystickUpdate(SDL_Joystick * joystick)
++{
++	if( ioPadGetData(joystick->index, &pd) == 0)
++	{
++		// Update axes
++		CheckPSL1GHTAxis( ANA_L_H, 0);
++		CheckPSL1GHTAxis( ANA_L_V, 1);
++		CheckPSL1GHTAxis( ANA_R_H, 2);
++		CheckPSL1GHTAxis( ANA_R_V, 3);
++		
++		// Update buttons
++		CheckPSL1GHTButton( BTN_LEFT, 0);
++		CheckPSL1GHTButton( BTN_DOWN, 1);
++		CheckPSL1GHTButton( BTN_RIGHT, 2);
++		CheckPSL1GHTButton( BTN_UP, 3);
++
++		CheckPSL1GHTButton( BTN_START, 4);
++		CheckPSL1GHTButton( BTN_R3, 5);
++		CheckPSL1GHTButton( BTN_L3, 6);
++		CheckPSL1GHTButton( BTN_SELECT, 7);
++
++		CheckPSL1GHTButton( BTN_SQUARE, 8);
++		CheckPSL1GHTButton( BTN_CROSS, 9);
++		CheckPSL1GHTButton( BTN_CIRCLE, 10);
++		CheckPSL1GHTButton( BTN_TRIANGLE, 11);
++
++		CheckPSL1GHTButton( BTN_R1, 12);
++		CheckPSL1GHTButton( BTN_L1, 13);
++		CheckPSL1GHTButton( BTN_R2, 14);
++		CheckPSL1GHTButton( BTN_L2, 15);
++	}
++	else
++		SDL_SetError("No joystick available with that index");
++#if 0
++	if(dbg_updated)
++	{
++		printf("raw pad data: %x %x %x %x\n",pd.button[0], pd.button[1], pd.button[2], pd.button[3]);
++	}
++#endif
++    return;
++}
++
++
++void SDL_SYS_JoystickClose(SDL_Joystick *joystick)
++{
++	return;
++}
++
++void SDL_SYS_JoystickQuit(void)
++{
++	ioPadEnd();
++	return;
++}
++
++#endif /* SDL_JOYSTICK_DUMMY || SDL_JOYSTICK_DISABLED */
+diff --git a/src/thread/SDL_thread_c.h b/src/thread/SDL_thread_c.h
+index 46bdd18..cd72c5f 100644
+--- a/src/thread/SDL_thread_c.h
++++ b/src/thread/SDL_thread_c.h
+@@ -37,6 +37,8 @@
+ #include "pth/SDL_systhread_c.h"
+ #elif SDL_THREAD_PTHREAD
+ #include "pthread/SDL_systhread_c.h"
++#elif SDL_THREAD_PSL1GHT
++#include "psl1ght/SDL_systhread_c.h"
+ #elif SDL_THREAD_SPROC
+ #include "irix/SDL_systhread_c.h"
+ #elif SDL_THREAD_WIN32
+diff --git a/src/thread/psl1ght/SDL_sysmutex.c b/src/thread/psl1ght/SDL_sysmutex.c
+new file mode 100644
+index 0000000..c0e1ef7
+--- /dev/null
++++ b/src/thread/psl1ght/SDL_sysmutex.c
+@@ -0,0 +1,129 @@
++/*
++    SDL - Simple DirectMedia Layer
++    Copyright (C) 1997-2009 Sam Lantinga
++
++    This library is free software; you can redistribute it and/or
++    modify it under the terms of the GNU Lesser General Public
++    License as published by the Free Software Foundation; either
++    version 2.1 of the License, or (at your option) any later version.
++
++    This library is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++    Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public
++    License along with this library; if not, write to the Free Software
++    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++
++    Sam Lantinga
++    slouken@libsdl.org
++*/
++#include "SDL_config.h"
++
++/* An implementation of mutexes using semaphores */
++
++#include "SDL_thread.h"
++#include "SDL_systhread_c.h"
++
++
++struct SDL_mutex {
++	int recursive;
++	Uint32 owner;
++	SDL_sem *sem;
++};
++
++/* Create a mutex */
++SDL_mutex *SDL_CreateMutex(void)
++{
++	SDL_mutex *mutex;
++
++	/* Allocate mutex memory */
++	mutex = (SDL_mutex *)SDL_malloc(sizeof(*mutex));
++	if ( mutex ) {
++		/* Create the mutex semaphore, with initial value 1 */
++		mutex->sem = SDL_CreateSemaphore(1);
++		mutex->recursive = 0;
++		mutex->owner = 0;
++		if ( ! mutex->sem ) {
++			SDL_free(mutex);
++			mutex = NULL;
++		}
++	} else {
++		SDL_OutOfMemory();
++	}
++	return mutex;
++}
++
++/* Free the mutex */
++void SDL_DestroyMutex(SDL_mutex *mutex)
++{
++	if ( mutex ) {
++		if ( mutex->sem ) {
++			SDL_DestroySemaphore(mutex->sem);
++		}
++		SDL_free(mutex);
++	}
++}
++
++/* Lock the semaphore */
++int SDL_mutexP(SDL_mutex *mutex)
++{
++#if SDL_THREADS_DISABLED
++	return 0;
++#else
++	Uint32 this_thread;
++
++	if ( mutex == NULL ) {
++		SDL_SetError("Passed a NULL mutex");
++		return -1;
++	}
++
++	this_thread = SDL_ThreadID();
++	if ( mutex->owner == this_thread ) {
++		++mutex->recursive;
++	} else {
++		/* The order of operations is important.
++		   We set the locking thread id after we obtain the lock
++		   so unlocks from other threads will fail.
++		*/
++		SDL_SemWait(mutex->sem);
++		mutex->owner = this_thread;
++		mutex->recursive = 0;
++	}
++
++	return 0;
++#endif /* SDL_THREADS_DISABLED */
++}
++
++/* Unlock the mutex */
++int SDL_mutexV(SDL_mutex *mutex)
++{
++#if SDL_THREADS_DISABLED
++	return 0;
++#else
++	if ( mutex == NULL ) {
++		SDL_SetError("Passed a NULL mutex");
++		return -1;
++	}
++
++	/* If we don't own the mutex, we can't unlock it */
++	if ( SDL_ThreadID() != mutex->owner ) {
++		SDL_SetError("mutex not owned by this thread");
++		return -1;
++	}
++
++	if ( mutex->recursive ) {
++		--mutex->recursive;
++	} else {
++		/* The order of operations is important.
++		   First reset the owner so another thread doesn't lock
++		   the mutex and set the ownership before we reset it,
++		   then release the lock semaphore.
++		 */
++		mutex->owner = 0;
++		SDL_SemPost(mutex->sem);
++	}
++	return 0;
++#endif /* SDL_THREADS_DISABLED */
++}
+diff --git a/src/thread/psl1ght/SDL_syssem.c b/src/thread/psl1ght/SDL_syssem.c
+new file mode 100644
+index 0000000..767f142
+--- /dev/null
++++ b/src/thread/psl1ght/SDL_syssem.c
+@@ -0,0 +1,87 @@
++/*
++*/
++#include "SDL_config.h"
++
++#include "SDL_timer.h"
++#include "SDL_thread.h"
++#include "SDL_systhread_c.h"
++#include <sys/sem.h>
++
++// SDL internal structure. Must be named like this and defined here.
++struct SDL_semaphore
++{
++	sys_sem_t sem;
++	sys_sem_attr_t attr;
++};
++
++SDL_sem *SDL_CreateSemaphore(Uint32 initial_value)
++{
++	SDL_sem *sem = (SDL_sem*) SDL_malloc(sizeof(struct SDL_semaphore));
++	if(!sem)
++	{	
++		SDL_SetError("PSL1GHT internal error when creating semaphore");
++		return (SDL_sem *)0;
++	}
++
++	// set magic numbers 
++        sem->attr.attr_protocol = SYS_SEM_ATTR_PROTOCOL;
++        sem->attr.attr_pshared = SYS_SEM_ATTR_PSHARED;
++	//1000 ought to be enough for anybody(?)
++	sysSemCreate(&(sem->sem),&(sem->attr),initial_value,1000/*max_val*/);
++	
++	return sem;
++}
++
++void SDL_DestroySemaphore(SDL_sem *sem)
++{
++	sysSemDestroy( sem->sem);
++	SDL_free(sem);
++	return;
++}
++
++int SDL_SemTryWait(SDL_sem *sem)
++{
++//printf("SDL_SemTryWait() - entry\n");
++	// returns zero if passed, non-zero on blocking
++	int retval = sysSemTryWait(sem->sem);
++//printf("SDL_SemTryWait() - exit\n");
++	return retval;
++}
++
++int SDL_SemWaitTimeout(SDL_sem *sem, Uint32 timeout)
++{
++printf("SDL_SemWaitTimeout() - entry\n");
++	int ret;
++	// psl1ght uses microseconds, SDL milliseconds
++	ret = sysSemWait(sem->sem, timeout*1000);
++
++printf("SDL_SemWaitTimeout() - exit\n");
++/* seems only symbian implements this...*/
++/*	if( ret ) return SDL_MUTEX_TIMEOUT;
++	else*/ return 0;
++}
++
++int SDL_SemWait(SDL_sem *sem)
++{
++//printf("SDL_SemWait() - entry\n");
++	// TODO: check return value !
++	int retval = sysSemWait(sem->sem, 0);
++//printf("SDL_SemWait() - exit\n");
++	return retval;
++}
++
++Uint32 SDL_SemValue(SDL_sem *sem)
++{
++printf("SDL_SemValue() - entry\n");
++	Uint32 retval;
++	sysSemGetValue(sem->sem, &retval);
++printf("SDL_SemValue() - exit\n");
++	return retval;
++}
++
++int SDL_SemPost(SDL_sem *sem)
++{
++	sysSemPost(sem->sem, 1);
++	return 1;
++}
++
+diff --git a/src/thread/psl1ght/SDL_systhread.c b/src/thread/psl1ght/SDL_systhread.c
+new file mode 100644
+index 0000000..b7673d3
+--- /dev/null
++++ b/src/thread/psl1ght/SDL_systhread.c
+@@ -0,0 +1,128 @@
++/*
++    SDL - Simple DirectMedia Layer
++    Copyright (C) 1997-2010 Sam Lantinga
++
++    This library is free software; you can redistribute it and/or
++    modify it under the terms of the GNU Lesser General Public
++    License as published by the Free Software Foundation; either
++    version 2.1 of the License, or (at your option) any later version.
++
++    This library is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++    Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public
++    License along with this library; if not, write to the Free Software
++    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++
++    Sam Lantinga
++    slouken@libsdl.org
++*/
++#include "SDL_config.h"
++
++/* PSL1GHT thread management routines for SDL */
++
++#include <stdio.h>
++#include <signal.h>
++#include <lv2/thread.h>
++#include <sys/thread.h>
++
++#include "SDL_mutex.h"
++#include "SDL_thread.h"
++#include "../SDL_thread_c.h"
++#include "../SDL_systhread.h"
++#include "SDL_systhread_c.h"
++
++static int sig_list[] = {
++    SIGHUP, SIGINT, SIGQUIT, SIGPIPE, SIGALRM, SIGTERM, SIGWINCH, 0
++};
++
++void
++SDL_MaskSignals(sigset_t * omask)
++{
++printf("SDL_MaskSignals() - entry\n");
++    sigset_t mask;
++    int i;
++
++    sigemptyset(&mask);
++    for (i = 0; sig_list[i]; ++i) {
++        sigaddset(&mask, sig_list[i]);
++    }
++	// FIXME as soom as signal are implemented in PSL1GHT
++//    sigprocmask(SIG_BLOCK, &mask, omask);
++printf("SDL_MaskSignals() - exit\n");
++}
++
++void
++SDL_UnmaskSignals(sigset_t * omask)
++{
++printf("SDL_UnmaskSignals() - entry\n");
++	// FIXME as soom as signal are implemented in PSL1GHT
++    //sigprocmask(SIG_SETMASK, omask, NULL);
++}
++
++static void
++RunThread(void* arg)
++{
++printf("SDL_RunThread() - entry\n");
++    SDL_RunThread((void *)arg);
++    sysThreadExit(0);
++printf("SDL_RunThread() - exit\n");
++}
++
++int
++SDL_SYS_CreateThread(SDL_Thread * thread, void *args)
++{
++printf("SDL_SYS_CreateThread()- entry\n");
++	sys_ppu_thread_t id;
++	size_t stack_size = 0x100000;
++	u64 priority = 1500;
++
++    /* Create the thread and go! */
++	int s = sysThreadCreate( &id, RunThread, args, priority, stack_size, THREAD_JOINABLE, "SDL");
++    thread->handle = id;
++
++    if ( s != 0)
++	{
++        SDL_SetError("Not enough resources to create thread");
++        return (-1);
++    }
++    //resume_thread(thread->handle);
++printf("SDL_SYS_CreateThread()- exit\n");
++    return (0);
++}
++
++void
++SDL_SYS_SetupThread(void)
++{
++printf("SDL_SYS_SetupThread() - entry\n");
++    /* Mask asynchronous signals for this thread */
++    SDL_MaskSignals(NULL);
++}
++
++Uint32
++SDL_ThreadID(void)
++{
++//printf("SDL_ThreadID() - entry\n");
++	// TODO: bug - id is uint64 - function requires retval of uint32
++	sys_ppu_thread_t id;
++	sysThreadGetId(&id);
++	return ((Uint32) id);
++}
++
++void
++SDL_SYS_WaitThread(SDL_Thread * thread)
++{
++	u64 retval;
++printf("SDL_WaitThread() - entry\n");
++	int t = sysThreadJoin(thread->handle, &retval);
++printf("SDL_WaitThread() - exit\n");
++}
++
++void SDL_SYS_KillThread(SDL_Thread *thread)
++{
++	printf("SDL_SYS_KillThread() called - but how to implement it??");
++}
++
++/* vi: set ts=4 sw=4 expandtab: */
+diff --git a/src/thread/psl1ght/SDL_systhread_c.h b/src/thread/psl1ght/SDL_systhread_c.h
+new file mode 100644
+index 0000000..9cab288
+--- /dev/null
++++ b/src/thread/psl1ght/SDL_systhread_c.h
+@@ -0,0 +1,35 @@
++/*
++    SDL - Simple DirectMedia Layer
++    Copyright (C) 1997-2010 Sam Lantinga
++
++    This library is free software; you can redistribute it and/or
++    modify it under the terms of the GNU Lesser General Public
++    License as published by the Free Software Foundation; either
++    version 2.1 of the License, or (at your option) any later version.
++
++    This library is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++    Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public
++    License along with this library; if not, write to the Free Software
++    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++
++    Sam Lantinga
++    slouken@libsdl.org
++*/
++#pragma once
++#include "SDL_config.h"
++
++#include <signal.h>
++#include <lv2/thread.h>
++
++typedef sys_ppu_thread_t SYS_ThreadHandle;
++//typedef sys_ppu_thread_t SDL_threadID;  //TODO: think about this!
++
++/* Functions needed to work with system threads in other portions of SDL */
++extern void SDL_MaskSignals(sigset_t * omask);
++extern void SDL_UnmaskSignals(sigset_t * omask);
++
++/* vi: set ts=4 sw=4 expandtab: */
+diff --git a/src/timer/psl1ght/SDL_systimer.c b/src/timer/psl1ght/SDL_systimer.c
+new file mode 100644
+index 0000000..174de2d
+--- /dev/null
++++ b/src/timer/psl1ght/SDL_systimer.c
+@@ -0,0 +1,112 @@
++/*
++    SDL - Simple DirectMedia Layer
++    Copyright (C) 1997-2010 Sam Lantinga
++
++    This library is free software; you can redistribute it and/or
++    modify it under the terms of the GNU Lesser General Public
++    License as published by the Free Software Foundation; either
++    version 2.1 of the License, or (at your option) any later version.
++
++    This library is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++    Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public
++    License along with this library; if not, write to the Free Software
++    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++
++    Sam Lantinga
++    slouken@libsdl.org
++*/
++#include "SDL_config.h"
++
++#ifdef SDL_TIMER_PSL1GHT
++#include <sys/time.h>
++#include <sys/unistd.h>
++
++#include "SDL_thread.h"
++#include "SDL_timer.h"
++#include "../SDL_timer_c.h"
++
++static struct timeval start;
++
++void
++SDL_StartTicks(void)
++{
++    /* Set first ticks value */
++    gettimeofday(&start, NULL);
++}
++
++Uint32
++SDL_GetTicks(void)
++{
++    Uint32 ticks;
++    struct timeval now;
++   gettimeofday(&now, NULL);
++    ticks =
++        (now.tv_sec - start.tv_sec) * 1000 + (now.tv_usec -
++                                              start.tv_usec) / 1000;
++    return (ticks);
++}
++
++void
++SDL_Delay(Uint32 ms)
++{
++    usleep(ms * 1000);
++}
++
++/* Data to handle a single periodic alarm */
++static int timer_alive = 0;
++static SDL_Thread *timer = NULL;
++
++static int
++RunTimer(void *unused)
++{
++    while (timer_alive) {
++        if (SDL_timer_running) {
++            SDL_ThreadedTimerCheck();
++        }
++        SDL_Delay(10);
++    }
++    return (0);
++}
++
++/* This is only called if the event thread is not running */
++int
++SDL_SYS_TimerInit(void)
++{
++    timer_alive = 1;
++    timer = SDL_CreateThread(RunTimer, NULL);
++    if (timer == NULL)
++        return (-1);
++    return (SDL_SetTimerThreaded(1));
++}
++
++void
++SDL_SYS_TimerQuit(void)
++{
++    timer_alive = 0;
++    if (timer) {
++        SDL_WaitThread(timer, NULL);
++        timer = NULL;
++    }
++}
++
++int
++SDL_SYS_StartTimer(void)
++{
++    SDL_SetError("Internal logic error: psl1ght uses threaded timer");
++    return (-1);
++}
++
++void
++SDL_SYS_StopTimer(void)
++{
++    return;
++}
++
++#else
++#error SDL_TIMER_PSL1GHT not def'd
++#endif /* SDL_TIMER_PSL1GHT */
++/* vi: set ts=4 sw=4 expandtab: */
+diff --git a/src/video/SDL_sysvideo.h b/src/video/SDL_sysvideo.h
+index 1c72e09..a5160d6 100644
+--- a/src/video/SDL_sysvideo.h
++++ b/src/video/SDL_sysvideo.h
+@@ -410,6 +410,9 @@ extern VideoBootStrap AALIB_bootstrap;
+ #if SDL_VIDEO_DRIVER_CACA
+ extern VideoBootStrap CACA_bootstrap;
+ #endif
++#if SDL_VIDEO_DRIVER_PSL1GHT
++extern VideoBootStrap PSL1GHT_bootstrap;
++#endif
+ #if SDL_VIDEO_DRIVER_DUMMY
+ extern VideoBootStrap DUMMY_bootstrap;
+ #endif
+diff --git a/src/video/SDL_video.c b/src/video/SDL_video.c
+index e84ef35..ffdb8c9 100644
+--- a/src/video/SDL_video.c
++++ b/src/video/SDL_video.c
+@@ -126,6 +126,11 @@ static VideoBootStrap *bootstrap[] = {
+ #if SDL_VIDEO_DRIVER_CACA
+ 	&CACA_bootstrap,
+ #endif
++#if SDL_VIDEO_DRIVER_PSL1GHT
++    &PSL1GHT_bootstrap,
++#else
++#error PSL1GHT not defined!
++#endif
+ #if SDL_VIDEO_DRIVER_DUMMY
+ 	&DUMMY_bootstrap,
+ #endif
+@@ -156,6 +161,7 @@ int SDL_VideoInit (const char *driver_name, Uint32 flags)
+ 	SDL_PixelFormat vformat;
+ 	Uint32 video_flags;
+ 
++	driver_name = "PSL1GHT";
+ 	/* Toggle the event thread flags, based on OS requirements */
+ #if defined(MUST_THREAD_EVENTS)
+ 	flags |= SDL_INIT_EVENTTHREAD;
+diff --git a/src/video/psl1ght/SDL_PSL1GHTevents.c b/src/video/psl1ght/SDL_PSL1GHTevents.c
+new file mode 100644
+index 0000000..74367c0
+--- /dev/null
++++ b/src/video/psl1ght/SDL_PSL1GHTevents.c
+@@ -0,0 +1,64 @@
++/*
++* SDL PSL1GHT port for SDL 1.2.
++* This file is derived from SDL's dummy driver and cebash's SDL 1.3 port.
++*/
++#include "SDL_config.h"
++
++/* Being a null driver, there's no event stream. We just define stubs for
++most of the API. */
++
++#include "SDL.h"
++#include "../../events/SDL_sysevents.h"
++#include "../../events/SDL_events_c.h"
++
++#include "SDL_PSL1GHTvideo.h"
++#include "SDL_PSL1GHTevents_c.h"
++#include "SDL_PSL1GHTinput_c.h"
++
++#include <sysutil/sysutil.h>
++
++void PSL1GHT_PumpEvents(_THIS)
++{
++    //query the kernel for events
++    sysUtilCheckCallback();
++    PSL1GHT_DispatchKeyboardEvents();
++}
++
++
++// A callback for the kernel to call when ...?
++static void eventHandle(u64 status, u64 param, void * userdata) {
++    //_THIS = userdata;
++    if(status == SYSUTIL_EXIT_GAME){
++	printf("Quit game requested\n");
++	SDL_PrivateQuit();
++    }else if(status == SYSUTIL_MENU_OPEN){
++	//xmb opened, should prob pause game or something :P
++    }else if(status == SYSUTIL_MENU_CLOSE){
++	//xmb closed, and then resume
++    }else if(status == SYSUTIL_DRAW_BEGIN){
++    }else if(status == SYSUTIL_DRAW_END){
++    }else{
++	printf("Unhandled event: %08llX\n", (unsigned long long int)status);
++    }
++}
++
++
++void
++PSL1GHT_InitSysEvent(_THIS)
++{
++    sysUtilRegisterCallback(SYSUTIL_EVENT_SLOT0, eventHandle, this);
++}
++
++void
++PSL1GHT_QuitSysEvent(_THIS)
++{
++    sysUtilUnregisterCallback(SYSUTIL_EVENT_SLOT0);
++}
++
++void PSL1GHT_InitOSKeymap(_THIS)
++{
++	/* do nothing. */
++	printf("PSL1GHT_InitOSKeymap() called - unimplemented\n");
++}
++
++
+diff --git a/src/video/psl1ght/SDL_PSL1GHTevents_c.h b/src/video/psl1ght/SDL_PSL1GHTevents_c.h
+new file mode 100644
+index 0000000..b5a4b1b
+--- /dev/null
++++ b/src/video/psl1ght/SDL_PSL1GHTevents_c.h
+@@ -0,0 +1,20 @@
++/*
++ * SDL PSL1GHT port for SDL 1.2.
++ * This file is derived from SDL's dummy driver and cebash's SDL 1.3 port.
++ */
++
++#include "SDL_config.h"
++
++#include "SDL_PSL1GHTvideo.h"
++
++/* Variables and functions exported by SDL_sysevents.c to other parts 
++   of the native video subsystem (SDL_sysvideo.c)
++*/
++extern void PSL1GHT_InitOSKeymap(_THIS);
++extern void PSL1GHT_PumpEvents(_THIS);
++
++void PSL1GHT_InitSysEvent(_THIS);
++
++
++/* end of SDL_PSL1GHTevents_c.h ... */
++
+diff --git a/src/video/psl1ght/SDL_PSL1GHTinput.c b/src/video/psl1ght/SDL_PSL1GHTinput.c
+new file mode 100644
+index 0000000..41f8e57
+--- /dev/null
++++ b/src/video/psl1ght/SDL_PSL1GHTinput.c
+@@ -0,0 +1,232 @@
++/* Input routines on PSL1GHT.
++ * Keyboard, mouse(?). 
++ * Game pad is treated as joystic and handled in src/joystic
++ *
++ */
++#include <io/kb.h>
++#include <stdio.h>
++#include "../../events/SDL_events_c.h"
++
++static int have_keyboard;
++
++// memory buffer for the pressed keys from last round.
++static u16 prev_keys[4];
++
++// PS3 allows getting keys as USB HID keys or ASCII. We
++// use the USB HID codes, encoded to SDLKeys in this table
++#define USB_HID_NUM_KB_CODES 0xE7
++static SDLKey USB_keymap[USB_HID_NUM_KB_CODES];
++
++
++int
++PSL1GHT_InitKeyboard(_THIS)
++{
++	int i;
++	KbInfo kbinfo;
++	// currently only support one keyboard.
++	// possibly expand to support multiple once one work
++	if(ioKbInit(1))
++	{	
++		// TODO: make an SDL error
++		printf("SDL: ioKbInit failure!\n");fflush(stdout);
++		return 1;
++	}
++	if(ioKbGetInfo(&kbinfo))	
++	{
++		// TODO: make an SDL error
++		printf("SDL: ioKbGetInfo failure!\n");fflush(stdout);
++		return 1;
++	}
++	// TODO: should we poll on each PumpEvent if a 
++	// keyboard would have been attached?
++	// for now, expect the user to have attached the 
++	// keyboard before starting the program.
++	// Yes I know - it is not nice
++	if(kbinfo.connected==0)
++	{
++		printf("SDL: no keyboard found!\n");fflush(stdout);
++		have_keyboard=0;
++	}
++	else {
++		// get the USB standard key values - this is what SDL-1.3 expects
++		ioKbSetCodeType( 0, KB_CODETYPE_RAW );
++		// Set this to get all the currently pressed keys upon request.
++		// (othervise we get the scan code when *a* key is pressed, and 
++		//  0 when *any* key is unpressed) 
++		ioKbSetReadMode( 0, 1);// KB_RMODE_PACKET );
++		have_keyboard=1; //??
++	}
++
++	memset(prev_keys, 0, sizeof(prev_keys));
++	
++	for( i=0; i<USB_HID_NUM_KB_CODES; i++)
++		USB_keymap[i]=SDLK_UNKNOWN;
++	// See USB HID Usage Tables, 1.1
++	USB_keymap[4] = SDLK_a; 
++	USB_keymap[5] = SDLK_b; 
++	USB_keymap[6] = SDLK_c; 
++	USB_keymap[7] = SDLK_d; 
++	USB_keymap[8] = SDLK_e; 
++	USB_keymap[9] = SDLK_f; 
++	USB_keymap[10] = SDLK_g; 
++	USB_keymap[11] = SDLK_h; 
++	USB_keymap[12] = SDLK_i; 
++	USB_keymap[13] = SDLK_j; 
++	USB_keymap[14] = SDLK_k; 
++	USB_keymap[15] = SDLK_l; 
++	USB_keymap[16] = SDLK_m; 
++	USB_keymap[17] = SDLK_n; 
++	USB_keymap[18] = SDLK_o; 
++	USB_keymap[19] = SDLK_p; 
++	USB_keymap[20] = SDLK_q; 
++	USB_keymap[21] = SDLK_r; 
++	USB_keymap[22] = SDLK_s; 
++	USB_keymap[23] = SDLK_t; 
++	USB_keymap[24] = SDLK_u; 
++	USB_keymap[25] = SDLK_v; 
++	USB_keymap[26] = SDLK_w; 
++	USB_keymap[27] = SDLK_x; 
++	USB_keymap[28] = SDLK_y; 
++	USB_keymap[29] = SDLK_z; 
++	USB_keymap[30] = SDLK_1; 
++	USB_keymap[31] = SDLK_2; 
++	USB_keymap[32] = SDLK_3; 
++	USB_keymap[33] = SDLK_4; 
++	USB_keymap[34] = SDLK_5; 
++	USB_keymap[35] = SDLK_6; 
++	USB_keymap[36] = SDLK_7; 
++	USB_keymap[37] = SDLK_8; 
++	USB_keymap[38] = SDLK_9; 
++	USB_keymap[39] = SDLK_0; 
++	USB_keymap[40] = SDLK_RETURN; 
++	USB_keymap[41] = SDLK_ESCAPE; 
++	USB_keymap[42] = SDLK_BACKSPACE; 
++	USB_keymap[43] = SDLK_TAB; 
++	USB_keymap[44] = SDLK_SPACE; 
++	//... snip... some boring keys. encode as needed
++	USB_keymap[79] = SDLK_RIGHT; 
++	USB_keymap[80] = SDLK_LEFT; 
++	USB_keymap[81] = SDLK_DOWN; 
++	USB_keymap[82] = SDLK_UP; 
++	
++	return 0;
++}
++
++void
++PSL1GHT_QuitKeyboard(_THIS)
++{
++	ioKbEnd();
++}
++
++/* input a SDL_keysym with only the 'scancode' field set.
++ * Fills in all (TODO!) other fields
++ */
++static int fill_keysym(SDL_keysym *sym)
++{
++	//sym->mod = current set of mod keys. is this set by SDL?
++	
++	//sym->unicode = ... only set if SDL_EnableUNICODE haz been called.
++	//                   perhaps we don't need to fill it here?
++
++	if( sym->scancode > 4 && sym->scancode < USB_HID_NUM_KB_CODES)
++	{
++		sym->sym = USB_keymap[sym->scancode];
++		return 1;
++	}
++	else
++	  return 0;
++}
++
++/* Helper function for PSL1GHT_DispatchKeyboardEvents. 
++ * Check if given key is in given key buffer 
++ * return 1 if is, 0 if is not
++ */
++inline int
++is_in_buf( u16 needle, u16* haystack, int size)
++{
++	int i;
++	int retval = 0;
++  //when no keys are pressed - ps3 reports "one key pressed, scancode 0".
++  if( needle == 0 ) return 0;
++
++//printf("is_in_buf(size=%d) searching for %d -\t",size, needle); fflush(stdout);
++	for( i=0; i<size; i++)
++	{
++//printf(" %d ", haystack[i]); fflush(stdout);
++		if( haystack[i]==needle ) //this is where the "segfault" comes in
++		{
++			retval=1;
++			// comment out for debug
++			//break;
++		}
++	}
++//printf("\n");
++	return retval;
++}
++
++
++/* Translate keyboard status to SDL events
++ *
++ * -psl1ght code is u16 - gets messed up as a SDL event
++ * if more than 4 keys are pressed simultaneously - 8 keys are reported
++ * all with code 32769
++ */
++void
++PSL1GHT_DispatchKeyboardEvents()
++{
++	int i;
++	int num_prev_keys=0;
++	u16 new_key;
++	KbData kbdata;
++
++	if(!have_keyboard)return;
++
++	ioKbRead(0, &kbdata);
++	// there is a bug of sorts in the kb handling routine. if >4 keys are pressed
++	// simultaneously 8 keys are reported, all with -32k as keycode. When 5th key is 
++	// released again everything goes back to normal.
++	// When there is no change nothing is reported
++	if( kbdata.nb_keycode > 4 || kbdata.nb_keycode==0)
++		return;	
++
++	// get the number of keys that was pressed last round.
++	// can't do this - kb buffers are not cleared
++	for( i=0; i<4; i++ )
++		if(prev_keys[i]) num_prev_keys++;
++		else break;
++
++	for( i=0; i<kbdata.nb_keycode; i++ ) {
++		if( !is_in_buf(kbdata.keycode[i], prev_keys, num_prev_keys) )
++		{
++			SDL_keysym sym;
++			sym.scancode = kbdata.keycode[i];
++			if( fill_keysym(&sym) )
++			//printf("PSL1GHT_DispatchKeyboardEvents() - pressed, scancode=%d\n", 
++				//                                           sym.scancode );	
++			//printf("nb_keycode=%d\tprev_keys=%d\n\n", kbdata.nb_keycode, num_prev_keys);	
++				SDL_PrivateKeyboard(SDL_PRESSED, &sym);
++
++		}
++	}
++  //when there are no keys pressed nb_keycode==1, but reading from keycode buffer 
++	// "segfaults". Don't segfault
++	for( i=0; i<num_prev_keys; i++) {
++		if( !is_in_buf(prev_keys[i], kbdata.keycode, kbdata.nb_keycode ) )
++		{
++			SDL_keysym sym;
++			sym.scancode = prev_keys[i];
++			if(fill_keysym(&sym))
++			//printf("PSL1GHT_DispatchKeyboardEvents() - released, keycode=%d\n", 
++			//                                      sym.scancode );	
++			//printf("nb_keycode=%d\tprev_keys=%d\n\n", kbdata.nb_keycode, num_prev_keys);	
++			  SDL_PrivateKeyboard(SDL_RELEASED, &sym);
++		}
++	}	
++
++	// update kb status in preparation for next round
++	num_prev_keys = kbdata.nb_keycode;
++	memset( prev_keys, 0, sizeof(prev_keys) );
++	memcpy(prev_keys, kbdata.keycode, num_prev_keys * sizeof(u16));
++
++}
++
+diff --git a/src/video/psl1ght/SDL_PSL1GHTinput_c.h b/src/video/psl1ght/SDL_PSL1GHTinput_c.h
+new file mode 100644
+index 0000000..a2f0b92
+--- /dev/null
++++ b/src/video/psl1ght/SDL_PSL1GHTinput_c.h
+@@ -0,0 +1,13 @@
++/*
++ * SDL PSL1GHT port for SDL 1.2.
++*/
++#include "SDL_config.h"
++
++#include "SDL_PSL1GHTvideo.h"
++
++/* Functions to be exported */
++
++int PSL1GHT_InitKeyboard(_THIS);
++int PSL1GHT_QuitKeyboard(_THIS);
++int PSL1GHT_DispatchKeyboardEvents();
++
+diff --git a/src/video/psl1ght/SDL_PSL1GHTvideo.c b/src/video/psl1ght/SDL_PSL1GHTvideo.c
+new file mode 100644
+index 0000000..c58baee
+--- /dev/null
++++ b/src/video/psl1ght/SDL_PSL1GHTvideo.c
+@@ -0,0 +1,496 @@
++/*
++ * SDL PSL1GHT port for SDL 1.2.
++ * This file is derived from SDL's dummy driver and cebash's SDL 1.3 port.
++*/
++#include "SDL_config.h"
++
++#include "SDL_video.h"
++#include "SDL_mouse.h"
++#include "../SDL_sysvideo.h"
++#include "../SDL_pixels_c.h"
++#include "../../events/SDL_events_c.h"
++#include "SDL_stdinc.h"
++
++#include "SDL_PSL1GHTvideo.h"
++#include "SDL_PSL1GHTevents_c.h"
++#include "SDL_PSL1GHTinput_c.h"
++
++#define PSL1GHTVID_DRIVER_NAME "PSL1GHT"
++
++#include <malloc.h>
++#include <assert.h>
++#include <unistd.h>
++#include <rsx/rsx.h>
++#include <sysutil/video.h>
++
++// kludges! sample code from somewhere
++#define GCM_LABEL_INDEX 255
++u32 depth_pitch;
++u32 depth_offset;
++u32 *depth_buffer;
++
++int isInited=0;
++void
++setRenderTargetStatic(gcmSurface *sf, gcmContextData *context, rsxBuffer *buffer)
++{
++  sf->colorFormat = GCM_TF_COLOR_X8R8G8B8;
++  sf->colorTarget = GCM_TF_TARGET_0;
++  sf->colorLocation[0] = GCM_LOCATION_RSX;
++
++  sf->colorLocation[1] = GCM_LOCATION_RSX;
++  sf->colorLocation[2] = GCM_LOCATION_RSX;
++  sf->colorLocation[3] = GCM_LOCATION_RSX;
++  sf->colorOffset[1] = 0;
++  sf->colorOffset[2] = 0;
++  sf->colorOffset[3] = 0;
++  sf->colorPitch[1] = 64;
++  sf->colorPitch[2] = 64;
++  sf->colorPitch[3] = 64;
++
++  sf->depthFormat = GCM_TF_ZETA_Z16;
++  sf->depthLocation = GCM_LOCATION_RSX;
++
++  sf->type = GCM_TF_TYPE_LINEAR;
++  sf->antiAlias 	= GCM_TF_CENTER_1;
++
++  sf->x = 0;
++  sf->y = 0;
++
++}
++
++void
++setRenderTargetDynamic(gcmSurface *sf, gcmContextData *context, rsxBuffer *buffer)
++{
++  sf->colorOffset[0] = buffer->offset;
++  sf->colorPitch[0] = depth_pitch;
++
++  sf->depthOffset = depth_offset;
++  sf->depthPitch = depth_pitch;
++
++  sf->width = buffer->width;
++  sf->height = buffer->height;
++
++  rsxSetSurface (context, sf);
++}
++
++static void
++waitFlip ()
++{
++  while (gcmGetFlipStatus () != 0)
++    usleep (200);  /* Sleep, to not stress the cpu. */
++  gcmResetFlipStatus ();
++}
++static int
++flip (gcmContextData *context, s32 buffer)
++{
++  if (gcmSetFlip (context, buffer) == 0) {
++    rsxFlushBuffer (context);
++    // Prevent the RSX from continuing until the flip has finished.
++    gcmSetWaitFlip (context);
++
++    return TRUE;
++  }
++  return FALSE;
++}
++
++static void
++waitFinish(gcmContextData *context, u32 sLabelVal)
++{
++  rsxSetWriteBackendLabel (context, GCM_LABEL_INDEX, sLabelVal);
++
++  rsxFlushBuffer (context);
++
++  while(*(vu32 *) gcmGetLabelAddress (GCM_LABEL_INDEX) != sLabelVal)
++    usleep(30);
++
++  sLabelVal++;
++}
++static void
++waitRSXIdle(gcmContextData *context)
++{
++  u32 sLabelVal = 1;
++
++  rsxSetWriteBackendLabel (context, GCM_LABEL_INDEX, sLabelVal);
++  rsxSetWaitLabel (context, GCM_LABEL_INDEX, sLabelVal);
++
++  sLabelVal++;
++
++  waitFinish(context, sLabelVal);
++}
++
++
++
++
++/* Initialization/Query functions */
++static int PSL1GHT_VideoInit(_THIS, SDL_PixelFormat *vformat);
++static SDL_Rect **PSL1GHT_ListModes(_THIS, SDL_PixelFormat *format, Uint32 flags);
++static SDL_Surface *PSL1GHT_SetVideoMode(_THIS, SDL_Surface *current, int width, int height, int bpp, Uint32 flags);
++static int PSL1GHT_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors);
++static void PSL1GHT_VideoQuit(_THIS);
++
++/* Hardware surface functions */
++static int PSL1GHT_AllocHWSurface(_THIS, SDL_Surface *surface);
++static int PSL1GHT_LockHWSurface(_THIS, SDL_Surface *surface);
++static void PSL1GHT_UnlockHWSurface(_THIS, SDL_Surface *surface);
++static void PSL1GHT_FreeHWSurface(_THIS, SDL_Surface *surface);
++static int PSL1GHT_FlipHWSurface(_THIS, SDL_Surface *surface);
++
++//possibly - copy current write buf to next, flip
++static int PSL1GHT_UpdateRects(_THIS, int num, SDL_Rect*rects)
++{
++	int i;
++	if( isInited==0 ) return 0;
++	//printf("PSL1GHT_UpdateRects() - num=%d\n",num);
++	//for( i=0; i< num; i++)
++	//	printf("\tx=%d, y=%d, w=%d, h=%d\n", \
++	//	         rects[i].x, rects[i].y,rects[i].w, rects[i].h);
++	PSL1GHT_FlipHWSurface(this, (SDL_Surface*) NULL);
++	return num;
++}
++
++static int PSL1GHT_Available(void)
++{
++//	printf("PSL1GHT_Available()\n");
++	return 1;
++}
++
++static void PSL1GHT_DeleteDevice(SDL_VideoDevice *device)
++{
++	SDL_free(device->hidden);
++	SDL_free(device);
++}
++
++static SDL_VideoDevice *PSL1GHT_CreateDevice(int devindex)
++{
++	SDL_VideoDevice *device;
++//printf("PSL1GHT_CreateDevice()\n");
++
++	/* Initialize all variables that we clean on shutdown */
++	device = (SDL_VideoDevice *)SDL_malloc(sizeof(SDL_VideoDevice));
++	if ( device ) {
++		SDL_memset(device, 0, (sizeof *device));
++		device->hidden = (struct SDL_PrivateVideoData *)
++				SDL_malloc((sizeof *device->hidden));
++	}
++	if ( (device == NULL) || (device->hidden == NULL) ) {
++		SDL_OutOfMemory();
++		if ( device ) {
++			SDL_free(device);
++		}
++		return(0);
++	}
++	SDL_memset(device->hidden, 0, (sizeof *device->hidden));
++
++	/* Set the function pointers */
++	device->VideoInit = PSL1GHT_VideoInit;
++	device->ListModes = PSL1GHT_ListModes;
++	device->SetVideoMode = PSL1GHT_SetVideoMode;
++	device->CreateYUVOverlay = NULL;
++	device->SetColors = PSL1GHT_SetColors;
++	device->VideoQuit = PSL1GHT_VideoQuit;
++	device->AllocHWSurface = PSL1GHT_AllocHWSurface;
++	device->CheckHWBlit = NULL;
++	device->FillHWRect = NULL;
++	device->SetHWColorKey = NULL;
++	device->SetHWAlpha = NULL;
++	device->LockHWSurface = PSL1GHT_LockHWSurface;
++	device->UnlockHWSurface = PSL1GHT_UnlockHWSurface;
++	device->FlipHWSurface = PSL1GHT_FlipHWSurface;
++	device->FreeHWSurface = PSL1GHT_FreeHWSurface;
++	device->UpdateRects = PSL1GHT_UpdateRects;
++	device->SetCaption = NULL;
++	device->SetIcon = NULL;
++	device->IconifyWindow = NULL;
++	device->GrabInput = NULL;
++	device->GetWMInfo = NULL;
++	device->InitOSKeymap = PSL1GHT_InitOSKeymap;
++	device->PumpEvents = PSL1GHT_PumpEvents;
++
++	device->free = PSL1GHT_DeleteDevice;
++
++	device->info.hw_available=1;
++	device->info.wm_available=0;
++	device->info.blit_hw=0;
++	device->info.blit_hw_CC=0;  
++	device->info.blit_hw_A=0;   
++	device->info.blit_sw=0;     
++	device->info.blit_sw_CC=0;  
++	device->info.blit_sw_A=0;   	
++	device->info.blit_fill=0;
++   
++	return device;
++}
++
++VideoBootStrap PSL1GHT_bootstrap = {
++	PSL1GHTVID_DRIVER_NAME, "SDL_PSL1GHT_VIDEO_DRIVER",
++	PSL1GHT_Available, PSL1GHT_CreateDevice
++};
++
++
++int PSL1GHT_VideoInit(_THIS, SDL_PixelFormat *vformat)
++{
++	printf("PSL1GHT_VideoInit()\n");
++	void *host_addr;	
++	gcmContextData* context;	
++
++	PSL1GHT_InitSysEvent(this);
++	PSL1GHT_InitKeyboard(this);
++
++	host_addr = memalign (1024*1024, HOST_SIZE);
++
++	/* Initilise Reality, which sets up the command buffer and shared IO memory */
++	context = rsxInit (CB_SIZE, HOST_SIZE, host_addr);
++	if (context == NULL)
++		goto error;
++
++	this->hidden->host_address = host_addr;
++	this->hidden->gcmContext = context;
++
++	// set the preferred format
++	vformat->BitsPerPixel = 32;
++	vformat->BytesPerPixel = 4;
++	//we use ARGB (8+8+8+8)
++	vformat->Amask = 0xff000000;
++	vformat->Rmask = 0xff0000;
++	vformat->Gmask = 0xff00;
++	vformat->Bmask = 0xff;
++	
++	this->info.wm_available = 0;
++
++	return(0);
++
++	error:
++	if (context)
++		rsxFinish (context, 0);
++	if (host_addr)
++		free (host_addr);
++	return 1;
++
++}
++static
++void add_mode( SDL_Rect***modes, int num_modes, int w, int h)
++{
++	SDL_Rect *mode;
++	printf("\tAvailable mode: %dx%d\n", w,h);
++	*modes = (SDL_Rect**)SDL_realloc( *modes, (num_modes+1)*sizeof(SDL_Rect*) );
++	mode = (SDL_Rect*)SDL_malloc( sizeof(SDL_Rect) );
++	if( *modes == NULL || mode == NULL )
++	{
++		SDL_OutOfMemory();
++		return;
++	}
++	
++	mode->x=0; mode->y=0; mode->w=w; mode->h=h;
++	(*modes)[num_modes] = mode;
++}
++//terrible klugde! add to PSL1GHT!
++int videoGetResolutionAvailability(int, int reso, int aspect,int);
++
++SDL_Rect **PSL1GHT_ListModes(_THIS, SDL_PixelFormat *format, Uint32 flags)
++{
++	int r;
++	int num_modes=0;
++	SDL_Rect **modes=NULL;
++
++	// todo: check rgb-ordering?
++	if( format->BitsPerPixel != 32 ) return (SDL_Rect**) NULL;
++	// this is never available, right?
++	r=videoGetResolutionAvailability(0, VIDEO_RESOLUTION_1080, VIDEO_ASPECT_4_3,0);
++	//printf("1080-4:3 r=%d\n", r);
++	if( r ) add_mode( &modes, num_modes++, 1440,1080);
++
++	r=videoGetResolutionAvailability(0, VIDEO_RESOLUTION_1080, VIDEO_ASPECT_16_9,0);
++	//printf("1080-16:9 r=%d\n", r);
++	if( r ) add_mode( &modes, num_modes++, 1920,1080);
++
++	r=videoGetResolutionAvailability(0, VIDEO_RESOLUTION_720, VIDEO_ASPECT_4_3,0);
++	//printf("720-4:3 r=%d\n", r);
++//	if( r ) add_mode( &modes, num_modes++, 1920,1080);
++
++	r=videoGetResolutionAvailability(0, VIDEO_RESOLUTION_720, VIDEO_ASPECT_16_9,0);
++	//printf("720-16:9 r=%d\n", r);
++	if( r ) add_mode( &modes, num_modes++, 1280,720);
++
++	r=videoGetResolutionAvailability(0, VIDEO_RESOLUTION_480, VIDEO_ASPECT_4_3,0);
++	//printf("480-4:3 r=%d\n", r);
++	if( r ) add_mode( &modes, num_modes++, 640,480);
++
++	r=videoGetResolutionAvailability(0, VIDEO_RESOLUTION_480, VIDEO_ASPECT_16_9,0);
++	//printf("480-16:9 r=%d\n", r);
++
++// PAL videos - these are strange. 576 is cited everywhere (even XMB), but the 
++// width eludes me. 704 is reported in litterature, 720 by my monitor, 768 = 4/3 * 576
++// - which to pass to SDL?
++	r=videoGetResolutionAvailability(0, VIDEO_RESOLUTION_576, VIDEO_ASPECT_16_9,0);
++	//printf("576-16:9 r=%d\n", r);
++	if( r ) add_mode( &modes, num_modes++, 720,576);
++	r=videoGetResolutionAvailability(0, VIDEO_RESOLUTION_576, VIDEO_ASPECT_4_3,0);
++	//printf("576-4:3 r=%d\n", r);
++	if( r ) add_mode( &modes, num_modes++, 720,576);
++
++
++	modes = (SDL_Rect**)SDL_realloc( modes, (num_modes+1)*sizeof(SDL_Rect*));
++	modes[num_modes]=NULL;
++	return (SDL_Rect **) modes;
++}
++
++// seems current might be a zero-sized surface, but not NULL
++SDL_Surface *PSL1GHT_SetVideoMode(_THIS, SDL_Surface *current,
++				int width, int height, int bpp, Uint32 flags)
++{
++	int i;
++	u8 reso;
++
++	switch(height)
++	{
++		case 1080: //full HD
++			reso = VIDEO_RESOLUTION_1080;	
++			break;
++		case 720: // HD ready
++			reso = VIDEO_RESOLUTION_720;
++			break;
++		case 480: //NTSC
++			reso = VIDEO_RESOLUTION_480;
++			break;
++		case 576: //PAL
++			reso = VIDEO_RESOLUTION_576;
++			break;
++		default:
++			// TODO: do we come here often?
++			SDL_SetError("Unsupported resolution");
++			return NULL;
++	}
++
++	printf("PSL1GHT_SetVideoMode(this, xxx, width=%d, height=%d, bpp=%d, xxx)\n",
++	                                          width,  height, bpp);
++
++	videoConfiguration vconfig;
++	memset (&vconfig, 0, sizeof(videoConfiguration));
++	vconfig.resolution = reso;
++	vconfig.format = VIDEO_BUFFER_FORMAT_XRGB;
++	vconfig.pitch = width * sizeof(u32);
++	vconfig.aspect = VIDEO_ASPECT_AUTO;
++
++	waitRSXIdle(this->hidden->gcmContext);
++
++ 	if (videoConfigure (0, &vconfig, NULL, 0) != 0) {
++		SDL_SetError("Internal error when calling videoConfigure()");
++		return NULL;
++	}
++  	gcmSetFlipMode (GCM_FLIP_VSYNC); // Wait for VSYNC to flip
++
++	// what are these??
++	depth_pitch = width * sizeof(u32);
++	depth_buffer = (u32 *) rsxMemalign (64, (height * depth_pitch)* 2);
++	rsxAddressToOffset (depth_buffer, &depth_offset);
++
++	gcmResetFlipStatus();
++
++
++	for (i = 0; i < NUM_BUFF; i++)
++	{
++		rsxBuffer *buf = &(this->hidden->buffers[i]);
++		buf->ptr = (uint32_t*) rsxMemalign (64, width*height*sizeof(u32));
++		if( buf->ptr==NULL)
++		{
++			SDL_SetError("Internal error - Video memory allocation fails");	
++			return NULL;
++		}	
++  		if (rsxAddressToOffset (buf->ptr, &(buf->offset)) != 0)
++		{
++			SDL_SetError("Internal error - rsxAddressToOffset() fails");	
++			return NULL;
++		}	
++		if (gcmSetDisplayBuffer (i, buf->offset, sizeof(u32)*width, width, height) != 0)
++		{
++			SDL_SetError("Internal error - gcmSetDisplayBuffer() fails");	
++			return NULL;
++		}	
++		buf->width=width;
++		buf->height=height;
++		buf->id = i;
++	}
++	//show contents of the last HW buffer. Set the zero'th as the one
++	// the SDL app should paint to
++	flip(this->hidden->gcmContext, NUM_BUFF - 1);
++	current->pixels = this->hidden->buffers[0].ptr;
++	setRenderTargetStatic(&(this->hidden->sf), this->hidden->gcmContext, &(this->hidden->buffers[0]));
++	setRenderTargetDynamic(&(this->hidden->sf), this->hidden->gcmContext, &(this->hidden->buffers[0]));
++
++	current->flags = flags | SDL_FULLSCREEN | SDL_DOUBLEBUF;
++	this->hidden->w = current->w = width;
++	this->hidden->h = current->h = height;
++	current->pitch = current->w * (bpp / 8);
++
++	this->hidden->current = 0; //current buffer id
++	waitFlip();
++	isInited=1;
++	return(current);
++}
++
++/* We don't actually allow hardware surfaces other than the main one */
++static int PSL1GHT_AllocHWSurface(_THIS, SDL_Surface *surface)
++{
++	return(-1);
++}
++static void PSL1GHT_FreeHWSurface(_THIS, SDL_Surface *surface)
++{
++	printf("PSL1GHT_FreeHWSurface() - unimplemented\n");
++	return;
++}
++
++/* We need to wait for vertical retrace on page flipped displays */
++static int PSL1GHT_LockHWSurface(_THIS, SDL_Surface *surface)
++{
++	// we do double buffereing - no locking needed?	
++	return(0);
++}
++
++
++static void PSL1GHT_UnlockHWSurface(_THIS, SDL_Surface *surface)
++{
++	// empty on purpose - locking syncs to screen 
++	return;
++}
++
++// what is 'surface' used for?
++static int PSL1GHT_FlipHWSurface(_THIS, SDL_Surface *suface )
++{
++	int buf = this->hidden->current;
++	suface=NULL;
++	flip( this->hidden->gcmContext, this->hidden->buffers[buf].id);
++	buf++; buf%=NUM_BUFF;
++	this->hidden->current=buf;	
++	waitFlip();
++	this->screen->pixels = this->hidden->buffers[buf].ptr;
++	setRenderTargetDynamic(&(this->hidden->sf), this->hidden->gcmContext, &(this->hidden->buffers[buf]));
++	return 0; 
++}
++
++int PSL1GHT_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
++{
++	printf("PSL1GHT_SetColors() - unimplemented\n");
++	return(1);
++}
++
++/* Note:  If we are terminated, this could be called in the middle of
++   another SDL video routine -- notably UpdateRects.
++*/
++void PSL1GHT_VideoQuit(_THIS)
++{
++	int i=0;
++	printf("PSL1GHT_VideoQuit() - enter\n");
++	PSL1GHT_QuitKeyboard(this);
++	for( ; i< NUM_BUFF; i++)
++	{
++		rsxFree(this->hidden->buffers[i].ptr);
++		this->hidden->buffers[i].ptr=NULL;
++	}
++	this->screen->pixels=NULL;
++	// this freezes - so don't do it & hope gameos does it for us
++	//rsxFinish(this->hidden->gcmContext, 1);
++	free(this->hidden); //TODO: check this is not done implicitly
++	printf("PSL1GHT_VideoQuit() - done\n");
++}
++
++
+diff --git a/src/video/psl1ght/SDL_PSL1GHTvideo.h b/src/video/psl1ght/SDL_PSL1GHTvideo.h
+new file mode 100644
+index 0000000..54a0a2e
+--- /dev/null
++++ b/src/video/psl1ght/SDL_PSL1GHTvideo.h
+@@ -0,0 +1,58 @@
++/*
++ * SDL PSL1GHT port for SDL 1.2.
++ * This file is derived from SDL's dummy driver and cebash's SDL 1.3 port.
++*/
++#include "SDL_config.h"
++
++#ifndef _SDL_PSL1GHTvideo_h
++#define _SDL_PSL1GHTvideo_h
++
++#include "../SDL_sysvideo.h"
++
++#include <ppu-types.h>
++#include <rsx/rsx.h>
++#include <rsx/gcm_sys.h>
++
++
++//kiped from somewhere - integrate to below
++#define CB_SIZE         0x100000
++#define HOST_SIZE       (32*1024*1024)
++typedef struct
++{
++  int height;
++  int width;
++  int id;
++  uint32_t *ptr;
++  // Internal stuff
++  uint32_t offset;
++} rsxBuffer;
++
++
++/* Hidden "this" pointer for the video functions */
++#define _THIS	SDL_VideoDevice *this
++
++#define NUM_BUFF 2
++
++/* Private display data */
++/* this is the this->hidden struct */
++struct SDL_PrivateVideoData {
++    int w, h;	//current width & height
++   // void *buffer; // pointer to rsx memory buffer
++    int num_screens; // number of screens in *buffer
++    rsxBuffer buffers[NUM_BUFF];
++
++    int current;	// the current buffer, a.k.a next to be displayed
++    gcmContextData *gcmContext;
++    gcmSurface sf;
++    void *host_address; //pointer to the PPU-RSX shared memory buffer
++};
++
++typedef struct SDL_DeviceData
++{
++	gcmContextData *_CommandBuffer; // Context to keep track of the RSX buffer.	
++} SDL_DeviceData;
++
++
++
++#endif /* _SDL_PSL1GHTvideo_h */
++

@@ -1,0 +1,26 @@
+SDL-1.2 version of SDL_PSL1GHT_Libs
+-----------------------------------
+
+This is a mostly unmodified version of SDL_PSL1GHT_Libs, but with an additional
+patch for porting SDL-1.2.14 to PSL1GHT v2. 
+
+The SDL port is in some places based on cebash's SDL-1.3 port (e.g. threading
+is copied verbatim) but much is written from scratch. In the files where there 
+is no copyright/license, assume a 'free beer' license. (unless, of course, you 
+redistribute as binary, in which case LGPL infects these files).
+
+INSTALL
+-------
+
+As of the latest ps3toolchain, SDL-1.3 is built by defaut. The following steps
+help you install this version on top of that.
+
+1) rm -rf $PS3DEV/portlibs/ppu
+	SDL-1.3 is built directly into this directory. This removes all the 
+	ps3libraries too.
+2) install ps3libraries
+	before building, remove the two sdl-related buildscripts. Then build
+	as usual
+3) run ./make_SDL_Libs.sh 
+	you can edit the SDL_INSTALL_PATH if you don't want to install SDL to 
+	some non-default place
