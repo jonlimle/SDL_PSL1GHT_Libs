@@ -4,6 +4,8 @@ tar xfvz ./SDL_mixer-1.2.11.tar.gz || { exit 1; }
 
 cd SDL_mixer-1.2.11 || { exit 1; }
 
+cp ../config.sub ../config.guess build-scripts/ || { exit 1; }
+
 cat ../patches/SDL_mixer-1.2.11.patch | patch -p1 || { exit 1; }
 
 LIBMIKMOD_CONFIG="$PS3DEV/portlibs/ppu/bin/libmikmod-config"

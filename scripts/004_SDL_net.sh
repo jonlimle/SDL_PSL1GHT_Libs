@@ -4,6 +4,8 @@ tar xfvz ./SDL_net-1.2.7.tar.gz || { exit 1; }
 
 cd SDL_net-1.2.7 || { exit 1; }
 
+cp ../config.sub ../config.guess . || { exit 1; }
+
 cat ../patches/SDL_net-1.2.7.patch | patch -p1 || { exit 1; }
 
 #this is seems like a bug in (the version of) PSL1GHT/ps3toolchain
