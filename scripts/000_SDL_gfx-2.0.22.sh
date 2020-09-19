@@ -1,10 +1,10 @@
-wget --continue http://www.ferzkopp.net/Software/SDL_gfx-2.0/SDL_gfx-2.0.22.tar.gz || { exit 1; }
+./download.sh SDL_gfx-2.0.22.tar.gz || { exit 1; }
 
-tar xfvz ./SDL_gfx-2.0.22.tar.gz || { exit 1; }
+tar xfvz archives/SDL_gfx-2.0.22.tar.gz || { exit 1; }
 
 cd SDL_gfx-2.0.22 || { exit 1; }
 
-cp ../config.sub ../config.guess . || { exit 1; }
+cp ../archives/config.sub ../archives/config.guess . || { exit 1; }
 
 ./configure --prefix="$PS3DEV/portlibs/ppu" --host=powerpc64-ps3-elf \
 	--with-sdl-exec-prefix="$PS3DEV/portlibs/ppu" \

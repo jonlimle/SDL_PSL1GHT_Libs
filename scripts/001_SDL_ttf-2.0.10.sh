@@ -1,10 +1,10 @@
-wget --continue http://www.libsdl.org/projects/SDL_ttf/release/SDL_ttf-2.0.10.tar.gz || { exit 1; }
+./download.sh SDL_ttf-2.0.10.tar.gz || { exit 1; }
 
-tar xfvz ./SDL_ttf-2.0.10.tar.gz || { exit 1; }
+tar xfvz archives/SDL_ttf-2.0.10.tar.gz || { exit 1; }
 
 cd SDL_ttf-2.0.10 || { exit 1; }
 
-cp ../config.sub ../config.guess . || { exit 1; }
+cp ../archives/config.sub ../archives/config.guess . || { exit 1; }
 
 cat ../patches/SDL_ttf-2.0.10.patch | patch -p1 || { exit 1; }
 

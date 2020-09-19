@@ -5,8 +5,9 @@ PKG_CONFIG_PATH="$PS3DEV/portlibs/ppu/lib/pkgconfig"
 export CFLAGS
 export LDFLAGS
 export PKG_CONFIG_PATH
-if [ ! -f config.guess ]; then wget --continue http://git.savannah.gnu.org/cgit/config.git/plain/config.guess; fi
-if [ ! -f config.sub ]; then wget --continue http://git.savannah.gnu.org/cgit/config.git/plain/config.sub; fi
+
+./download.sh config.guess
+./download.sh config.sub
 
 ## Fetch the build scripts.
 BUILD_SCRIPTS=`ls scripts/*.sh | sort`
